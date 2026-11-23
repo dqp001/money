@@ -1,12 +1,13 @@
 # Mi Contador SAT
 
-App web para una persona física en México (freelancer) que:
+Tu contador personal en RESICO, con un diseño bonito y fácil de entender. App web para una persona física en México (freelancer) que:
 
 - Lee los XML (o ZIP) de tus facturas CFDI emitidas y recibidas.
 - Calcula el ISR y el IVA de cada mes en **RESICO (626)** o **Actividades Empresariales y Profesionales (612)**.
 - Revisa errores comunes (PPD sin complemento de pago, retenciones faltantes, gastos en efectivo, uso S01).
-- Te dice qué capturar en la declaración mensual del SAT.
-- Compara cuánto ISR pagarías en cada régimen.
+- Te guía paso a paso para presentar tu declaración mensual en el portal del SAT, con los números listos para copiar.
+- Te deja marcar qué meses ya presentaste y cuáles están atrasados.
+- Explica las palabras del SAT en fácil.
 
 Todo se procesa en tu navegador. Tus facturas no se suben a ningún servidor; se guardan solo en el `localStorage` de tu navegador.
 

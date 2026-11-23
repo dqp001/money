@@ -3,186 +3,228 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#FF7EB0">
 <style>:root{color-scheme:light}body{margin:0;font:14px system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Mi Contador SAT</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ccircle cx='40' cy='12' r='8' fill='%23FFC857'/%3E%3Cpath d='M40 15.5s-4-2.4-4-5.2a2.2 2.2 0 0 1 4-1.3 2.2 2.2 0 0 1 4 1.3c0 2.8-4 5.2-4 5.2z' fill='%23fff'/%3E%3Cellipse cx='31' cy='38' rx='22' ry='17' fill='%23FF8DBB'/%3E%3Cpath d='M17 26l-2-9 9 5z' fill='%23FF8DBB'/%3E%3Crect x='14' y='49' width='6' height='9' rx='3' fill='%23FF8DBB'/%3E%3Crect x='38' y='49' width='6' height='9' rx='3' fill='%23FF8DBB'/%3E%3Cellipse cx='51' cy='38' rx='6' ry='5' fill='%23FFB3D1'/%3E%3Ccircle cx='49.5' cy='38' r='1.2' fill='%237A2E4F'/%3E%3Ccircle cx='52.5' cy='38' r='1.2' fill='%237A2E4F'/%3E%3Ccircle cx='40' cy='32' r='2' fill='%237A2E4F'/%3E%3Crect x='25' y='23' width='10' height='2.6' rx='1.3' fill='%23C93F7A'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;600&family=Manrope:wght@600;700;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;600;700;800&display=swap">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 <style>
-/* Layout: one working column (max 1120px): header with upload + settings, tab bar, then the active view. Ledger-like tables in mono. */
+/* Layout: one soft column (max 900px). Greeting hero with piggy bank, upload card, pill tabs, then the active view (Inicio / Declarar / Facturas / Ayuda). */
 :root{
-  --bg:#F3F6F5; --surface:#FFFFFF; --ink:#13201C; --muted:#5A6A64; --line:#DCE3E0;
-  --accent:#0E6B57; --accent-ink:#FFFFFF; --accent-soft:#E1F0EB;
-  --ok:#1E7B45; --ok-soft:#E3F3E8; --warn:#9A5A06; --warn-soft:#FBF0DC; --bad:#B3261E; --bad-soft:#FBE6E4;
-  --f-display:"Manrope",system-ui,sans-serif; --f-body:"Inter",system-ui,sans-serif; --f-num:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  --bg:#FFF5F8; --surface:#FFFFFF; --ink:#3B2340; --muted:#86698C; --line:#F6DDE8;
+  --pink:#FF7EB0; --pink-deep:#C93F7A; --pink-soft:#FFE3EF; --on-pink:#FFFFFF;
+  --lilac:#B79CF2; --lilac-deep:#6E4FC4; --lilac-soft:#EFE7FF;
+  --mint:#4CC9A0; --mint-deep:#1F8463; --mint-soft:#DDF7EE;
+  --sun:#FFC857; --sun-deep:#A8700A; --sun-soft:#FFF2D1;
+  --dot:#F9D3E3;
+  --f-display:"Fredoka","Nunito",system-ui,sans-serif; --f-body:"Nunito",system-ui,sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
-  --bg:#0F1513; --surface:#161E1B; --ink:#E6EEEA; --muted:#93A49D; --line:#28342F;
-  --accent:#4FC3A1; --accent-ink:#06231B; --accent-soft:#16302A;
-  --ok:#5CC98A; --ok-soft:#15301F; --warn:#E0A44A; --warn-soft:#33260F; --bad:#F07A72; --bad-soft:#3A1816; color-scheme:dark}}
+  --bg:#21162A; --surface:#2C1F36; --ink:#FBEFF6; --muted:#CDB2D3; --line:#46324F;
+  --pink:#FF8DBB; --pink-deep:#FF9CC5; --pink-soft:#4A2540; --on-pink:#3A0F24;
+  --lilac:#C7B1FF; --lilac-deep:#CDB9FF; --lilac-soft:#3A2E55;
+  --mint:#6BE0B8; --mint-deep:#7FE6C3; --mint-soft:#1E3F36;
+  --sun:#FFD27A; --sun-deep:#FFD27A; --sun-soft:#4A3A1E; --dot:#33243D; color-scheme:dark}}
 :root[data-theme="dark"]{
-  --bg:#0F1513; --surface:#161E1B; --ink:#E6EEEA; --muted:#93A49D; --line:#28342F;
-  --accent:#4FC3A1; --accent-ink:#06231B; --accent-soft:#16302A;
-  --ok:#5CC98A; --ok-soft:#15301F; --warn:#E0A44A; --warn-soft:#33260F; --bad:#F07A72; --bad-soft:#3A1816; color-scheme:dark}
+  --bg:#21162A; --surface:#2C1F36; --ink:#FBEFF6; --muted:#CDB2D3; --line:#46324F;
+  --pink:#FF8DBB; --pink-deep:#FF9CC5; --pink-soft:#4A2540; --on-pink:#3A0F24;
+  --lilac:#C7B1FF; --lilac-deep:#CDB9FF; --lilac-soft:#3A2E55;
+  --mint:#6BE0B8; --mint-deep:#7FE6C3; --mint-soft:#1E3F36;
+  --sun:#FFD27A; --sun-deep:#FFD27A; --sun-soft:#4A3A1E; --dot:#33243D; color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.5}
-.wrap{max-width:1120px;margin:0 auto;padding-block:20px 60px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:18px}
-h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;letter-spacing:-.01em}
-h1{font-size:1.7rem;font-weight:800}
-h2{font-size:1.2rem;font-weight:700}
-h3{font-size:1rem;font-weight:700}
+body{background-color:var(--bg);background-image:radial-gradient(var(--dot) 1.2px,transparent 1.4px);background-size:22px 22px;color:var(--ink);font-family:var(--f-body);font-size:16px;line-height:1.55}
+.wrap{max-width:900px;margin:0 auto;padding-block:22px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:18px}
+h1,h2,h3{font-family:var(--f-display);margin:0;text-wrap:balance;font-weight:600}
+h1{font-size:2.2rem;line-height:1.05;font-weight:700}
+h2{font-size:1.35rem}
+h3{font-size:1.08rem}
 p{margin:0}
-a{color:var(--accent)}
+a{color:var(--pink-deep);font-weight:700}
 .muted{color:var(--muted)}
-.small{font-size:.85rem}
-.num{font-family:var(--f-num);font-variant-numeric:tabular-nums}
-.label{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
-header.top{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-end;justify-content:space-between}
-.brand{display:grid;gap:4px;min-width:0}
-.brand p{max-width:60ch}
-.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px;display:grid;gap:14px;min-width:0}
-.controls{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
-.field{display:grid;gap:4px}
-.field input,.field select,select.inline{font:inherit;font-size:.9rem;padding:7px 10px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--ink)}
-.field input{width:170px;font-family:var(--f-num);text-transform:uppercase}
-button,.btn{font:inherit;font-size:.9rem;font-weight:600;border-radius:7px;padding:8px 14px;cursor:pointer;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
-button.primary,.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-button.ghost{background:transparent}
-button.danger{color:var(--bad);border-color:var(--bad)}
-button:focus-visible,select:focus-visible,input:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-.drop{border:1.5px dashed var(--line);border-radius:10px;padding:16px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;transition:border-color .15s,background .15s}
-.drop.over{border-color:var(--accent);background:var(--accent-soft)}
-.drop .txt{display:grid;gap:2px;min-width:0;flex:1 1 260px}
-.banner{border-radius:8px;padding:10px 14px;background:var(--warn-soft);color:var(--ink);display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
-.banner b{color:var(--warn)}
-nav.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:1px solid var(--line)}
-nav.tabs button{border:0;border-bottom:2px solid transparent;border-radius:0;background:transparent;color:var(--muted);padding:10px 12px;white-space:nowrap}
-nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
-.kpi{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:6px;align-content:start}
-.kpi .v{font-family:var(--f-num);font-size:1.45rem;font-weight:600;font-variant-numeric:tabular-nums}
-.kpi .sub{font-size:.82rem;color:var(--muted)}
-.kpi.hl{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent)}
-.pill{display:inline-flex;align-items:center;gap:4px;font-size:.75rem;font-weight:600;padding:2px 8px;border-radius:999px;white-space:nowrap}
-.pill.ok{background:var(--ok-soft);color:var(--ok)}
-.pill.warn{background:var(--warn-soft);color:var(--warn)}
-.pill.bad{background:var(--bad-soft);color:var(--bad)}
-.pill.info{background:var(--accent-soft);color:var(--accent)}
-.tablebox{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
-table{border-collapse:collapse;width:100%;font-size:.88rem}
-th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:600;background:var(--bg);white-space:nowrap}
+.small{font-size:.88rem}
+.num{font-variant-numeric:tabular-nums}
+.card{background:var(--surface);border-radius:24px;padding:20px;display:grid;gap:14px;min-width:0;border:2px solid var(--line)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.chip{justify-self:start;font-family:var(--f-display);font-weight:600;font-size:.85rem;padding:4px 12px;border-radius:999px;background:var(--lilac-soft);color:var(--ink)}
+.pill{display:inline-flex;align-items:center;gap:5px;font-size:.8rem;font-weight:800;padding:3px 11px;border-radius:999px;white-space:nowrap;justify-self:start}
+.pill.ok{background:var(--mint-soft);color:var(--mint-deep)}
+.pill.warn{background:var(--sun-soft);color:var(--sun-deep)}
+.pill.bad{background:var(--pink-soft);color:var(--pink-deep)}
+.pill.info{background:var(--lilac-soft);color:var(--lilac-deep)}
+.pill.off{background:var(--bg);color:var(--muted)}
+button{font:inherit;font-weight:800;cursor:pointer;border-radius:999px;padding:10px 18px;border:2px solid var(--line);background:var(--surface);color:var(--ink)}
+button.primary{background:var(--pink);color:var(--on-pink);border-color:var(--pink)}
+button.primary:hover{filter:brightness(1.05)}
+button.soft{background:var(--pink-soft);border-color:transparent}
+button:disabled{opacity:.5;cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid var(--lilac);outline-offset:2px}
+select,input[type=text]{font:inherit;font-weight:700;padding:8px 14px;border-radius:999px;border:2px solid var(--line);background:var(--surface);color:var(--ink)}
+
+.hero{display:grid;grid-template-columns:1fr auto;gap:16px;align-items:center;background:var(--surface);border-radius:28px;padding:22px 24px;border:2px solid var(--line)}
+.hero .t{display:grid;gap:8px;min-width:0}
+.hero h1 span{color:var(--pink-deep)}
+.hero .pig svg{width:130px;height:auto;display:block}
+.picker{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+@media (max-width:540px){.hero{grid-template-columns:1fr}.hero .pig{justify-self:center;order:-1}.hero .pig svg{width:104px}}
+
+.drop{border:2.5px dashed var(--pink);border-radius:24px;padding:16px 18px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;background:var(--surface);transition:background .15s}
+.drop.over{background:var(--pink-soft)}
+.drop .txt{display:flex;gap:12px;align-items:center;min-width:0;flex:1 1 280px}
+.drop .ic{width:46px;height:46px;flex:none;border-radius:16px;background:var(--pink-soft);display:grid;place-items:center}
+.drop .ic svg{width:26px;height:26px}
+.drop b{font-family:var(--f-display);font-weight:600;font-size:1.05rem;display:block}
+.banner{border-radius:18px;padding:12px 16px;background:var(--sun-soft);font-weight:600}
+
+nav.tabs{display:flex;gap:6px;overflow-x:auto;padding:5px;background:var(--surface);border-radius:999px;border:2px solid var(--line)}
+nav.tabs button{flex:1 0 auto;border:0;background:transparent;color:var(--muted);padding:9px 14px;display:inline-flex;gap:6px;align-items:center;justify-content:center;white-space:nowrap}
+nav.tabs button svg{width:18px;height:18px}
+nav.tabs button[aria-selected="true"]{background:var(--pink);color:var(--on-pink)}
+@media (max-width:480px){nav.tabs button{padding:8px 10px;font-size:.9rem}nav.tabs button svg{display:none}.stats{grid-template-columns:1fr 1fr}.stats .stat:last-child{grid-column:1/-1}}
+
+.big{background:linear-gradient(135deg,var(--pink-soft),var(--lilac-soft));border:2px solid var(--line);border-radius:28px;padding:22px;display:grid;gap:14px}
+.big .amt{font-family:var(--f-display);font-weight:700;font-size:2.6rem;line-height:1}
+.parts{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.part{background:var(--surface);border-radius:20px;padding:14px 16px;display:grid;gap:4px;align-content:start}
+.part .v{font-family:var(--f-display);font-weight:600;font-size:1.5rem}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.stat{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:14px 16px;display:grid;gap:2px}
+.stat .v{font-family:var(--f-display);font-weight:600;font-size:1.3rem}
+.lbl{font-size:.78rem;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.checks{display:grid;gap:8px;list-style:none;margin:0;padding:0}
+.checks li{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:12px 14px;border-radius:18px;background:var(--bg)}
+.dotc{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-weight:800;font-size:.9rem}
+.dotc.bad{background:var(--pink-soft);color:var(--pink-deep)}
+.dotc.warn{background:var(--sun-soft);color:var(--sun-deep)}
+.dotc.info{background:var(--lilac-soft);color:var(--lilac-deep)}
+.months{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.month{background:var(--surface);border:2px solid var(--line);border-radius:20px;padding:12px 14px;display:grid;gap:4px;text-align:left;cursor:pointer;font-weight:600}
+.month b{font-family:var(--f-display);font-weight:600;font-size:1.05rem}
+.month.sel{border-color:var(--pink);box-shadow:0 0 0 2px var(--pink) inset}
+.month .v{font-size:.95rem}
+
+.steps{display:grid;gap:12px;list-style:none;margin:0;padding:0}
+.step{background:var(--surface);border:2px solid var(--line);border-radius:22px;padding:16px 18px;display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:start}
+.step.done{border-color:var(--mint);background:var(--mint-soft)}
+.step .n{width:40px;height:40px;border-radius:50%;background:var(--pink-soft);color:var(--pink-deep);display:grid;place-items:center;font-family:var(--f-display);font-weight:700;font-size:1.1rem;cursor:pointer;border:0;padding:0}
+.step.done .n{background:var(--mint);color:#fff}
+.step .body{display:grid;gap:8px;min-width:0}
+.cap{display:grid;gap:6px}
+.capr{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;background:var(--bg);border-radius:14px;padding:8px 8px 8px 14px;min-height:44px}
+.step.done .capr{background:var(--surface)}
+.capr .k small{display:block;color:var(--muted);font-size:.8rem;font-weight:600}
+.capr .v{font-family:var(--f-display);font-weight:600;font-size:1.15rem;text-align:right}
+.capr.res{background:var(--pink-soft)}
+.capr.res .v{color:var(--pink-deep)}
+.copy{font-size:.78rem;padding:5px 12px}
+.tip{font-size:.88rem;color:var(--ink);background:var(--lilac-soft);border-radius:14px;padding:8px 12px}
+@media (max-width:520px){.capr{grid-template-columns:1fr auto}.capr .copy{grid-column:2}.step{grid-template-columns:1fr}}
+
+.seg{display:inline-flex;padding:4px;background:var(--surface);border:2px solid var(--line);border-radius:999px;gap:4px;flex-wrap:wrap}
+.seg button{border:0;padding:6px 14px;background:transparent;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--lilac-soft);color:var(--lilac-deep)}
+.tablebox{overflow-x:auto;border:2px solid var(--line);border-radius:22px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:.9rem}
+th,td{padding:10px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.74rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:800;white-space:nowrap}
 td.r,th.r{text-align:right}
-td.r{font-family:var(--f-num);font-variant-numeric:tabular-nums;white-space:nowrap}
+td.r{white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:700}
 tr:last-child td{border-bottom:0}
-tr.sel td{background:var(--accent-soft)}
-tr.total td{font-weight:600;border-top:2px solid var(--line)}
 tr.off td{opacity:.45}
-tr.click{cursor:pointer}
-.who{display:grid;min-width:160px}
-.who .n{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.who .rfc{font-family:var(--f-num);font-size:.75rem;color:var(--muted)}
-.checks{display:grid;gap:8px}
-.check{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:10px 12px;border-radius:8px;background:var(--bg)}
-.check p{min-width:0}
-.steps{display:grid;gap:12px}
-.sec{display:grid;gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
-.sec .hd{padding:12px 16px;background:var(--bg);display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center}
-.row{display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;padding:10px 16px;border-top:1px solid var(--line)}
-.row .k{min-width:0}
-.row .k small{display:block;color:var(--muted);font-size:.8rem}
-.row .v{font-family:var(--f-num);font-variant-numeric:tabular-nums;font-weight:600;text-align:right}
-.row.res{background:var(--accent-soft)}
-.row.res .v{color:var(--accent);font-size:1.1rem}
-.copy{font-size:.75rem;padding:4px 9px}
-.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:12px}
-.cmp{display:grid;gap:8px}
-.bar{height:12px;border-radius:6px;background:var(--line);overflow:hidden}
-.bar i{display:block;height:100%;background:var(--accent);border-radius:6px}
-.bar.alt i{background:var(--muted)}
-ol.how{margin:0;padding-left:1.2rem;display:grid;gap:8px;max-width:70ch}
-ul.plain{margin:0;padding-left:1.1rem;display:grid;gap:6px;max-width:72ch}
-.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden}
-.seg button{border:0;border-radius:0;padding:6px 12px;background:transparent;color:var(--muted)}
-.seg button[aria-pressed="true"]{background:var(--accent-soft);color:var(--accent)}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-size:.9rem;z-index:20}
-footer{font-size:.8rem;color:var(--muted);max-width:80ch}
-@media (max-width:560px){.row{grid-template-columns:1fr auto}.row .copy{grid-column:2}.field input{width:150px}}
+.who{display:grid;min-width:150px}
+.who .n{font-weight:800;max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.who .rfc{font-size:.76rem;color:var(--muted)}
+select.inline{font-size:.82rem;padding:5px 10px}
+
+ol.how,ul.plain{margin:0;padding-left:1.3rem;display:grid;gap:8px;max-width:70ch}
+dl.glos{margin:0;display:grid;gap:10px}
+dl.glos div{background:var(--bg);border-radius:16px;padding:10px 14px}
+dl.glos dt{font-family:var(--f-display);font-weight:600;color:var(--pink-deep)}
+dl.glos dd{margin:0}
+details.set summary{cursor:pointer;font-weight:800;color:var(--muted)}
+details.set .picker{margin-top:10px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:12px 18px;border-radius:999px;font-weight:700;font-size:.92rem;z-index:20;max-width:calc(100% - 32px);text-align:center}
+footer{font-size:.82rem;color:var(--muted);max-width:75ch}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
 <body>
 
 <div class="wrap">
-  <header class="top">
-    <div class="brand">
-      <span class="label">Persona física · Servicios de publicidad</span>
-      <h1>Mi Contador SAT</h1>
-      <p class="muted">Carga los XML de tus facturas y la app calcula tu ISR e IVA de cada mes, revisa errores y te dice qué capturar en el portal del SAT.</p>
+  <section class="hero">
+    <div class="t">
+      <span class="chip" id="hello">Hola</span>
+      <h1>Mi Contador <span>SAT</span></h1>
+      <p class="muted">Sube tus facturas y te digo cuánto pagar cada mes, qué escribir en el SAT y si algo está raro. Sin palabras complicadas.</p>
+      <div class="picker">
+        <label class="small muted" for="f-month">Ver el mes de</label>
+        <select id="f-month"></select>
+        <select id="f-year" aria-label="Año"></select>
+      </div>
     </div>
-    <div class="controls">
-      <div class="field"><label class="label" for="f-rfc">Tu RFC</label><input id="f-rfc" maxlength="13" placeholder="Se detecta solo"></div>
-      <div class="field"><label class="label" for="f-reg">Régimen</label><select id="f-reg"></select></div>
-      <div class="field"><label class="label" for="f-year">Año</label><select id="f-year"></select></div>
-      <div class="field"><label class="label" for="f-month">Mes</label><select id="f-month"></select></div>
+    <div class="pig" aria-hidden="true">
+      <svg viewBox="0 0 140 120">
+        <circle cx="92" cy="22" r="15" fill="var(--sun)"/>
+        <path d="M92 29s-8-4.7-8-10.2a4.4 4.4 0 0 1 8-2.5 4.4 4.4 0 0 1 8 2.5C100 24.3 92 29 92 29z" fill="#fff"/>
+        <ellipse cx="66" cy="74" rx="46" ry="35" fill="var(--pink)"/>
+        <path d="M36 50l-6-20 20 11z" fill="var(--pink)"/>
+        <rect x="30" y="98" width="13" height="18" rx="6.5" fill="var(--pink)"/>
+        <rect x="80" y="98" width="13" height="18" rx="6.5" fill="var(--pink)"/>
+        <ellipse cx="110" cy="74" rx="13" ry="11" fill="var(--pink-soft)"/>
+        <circle cx="106" cy="74" r="2.6" fill="var(--pink-deep)"/><circle cx="114" cy="74" r="2.6" fill="var(--pink-deep)"/>
+        <path d="M80 60q4-4 8 0" stroke="var(--ink)" stroke-width="3" fill="none" stroke-linecap="round"/>
+        <circle cx="94" cy="72" r="5" fill="#fff" opacity=".45"/>
+        <rect x="54" y="42" width="22" height="5" rx="2.5" fill="var(--pink-deep)"/>
+        <path d="M20 76c-8 0-10-8-4-10" stroke="var(--pink)" stroke-width="4" fill="none" stroke-linecap="round"/>
+      </svg>
     </div>
-  </header>
+  </section>
 
-  <div id="sampleBanner" class="banner" hidden>
-    <span><b>Datos de ejemplo.</b> Estas facturas son inventadas para mostrar cómo funciona. Al cargar tus XML se reemplazan.</span>
-  </div>
+  <div id="sampleBanner" class="banner" hidden>Estás viendo facturas de ejemplo para que veas cómo funciona. Cuando subas las tuyas, se reemplazan.</div>
 
   <div class="drop" id="drop">
     <div class="txt">
-      <strong>Agrega tus facturas (XML o ZIP del SAT)</strong>
-      <span class="muted small">Emitidas y recibidas, incluidos complementos de pago. Se leen solo en este navegador; nada se sube a internet.</span>
+      <span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="var(--pink-deep)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M5 20h14"/></svg></span>
+      <div><b>Sube tus facturas del SAT</b><span class="small muted">Los XML o el ZIP que descargas del portal. Se quedan solo en este celular o compu; no se suben a internet.</span></div>
     </div>
-    <div class="controls">
+    <div class="row">
       <input type="file" id="file" accept=".xml,.zip" multiple hidden>
       <button class="primary" id="pick">Elegir archivos</button>
-      <button class="ghost" id="clear">Borrar todo</button>
+      <button id="clear" hidden>Borrar todo</button>
     </div>
   </div>
 
   <nav class="tabs" role="tablist" id="tabs">
-    <button role="tab" data-tab="resumen">Resumen</button>
-    <button role="tab" data-tab="declaracion">Declaración del mes</button>
-    <button role="tab" data-tab="facturas">Facturas</button>
-    <button role="tab" data-tab="regimen">¿Qué régimen me conviene?</button>
-    <button role="tab" data-tab="ayuda">Cómo usarla</button>
+    <button role="tab" data-tab="inicio"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11l8-7 8 7v9H4z"/></svg>Inicio</button>
+    <button role="tab" data-tab="declarar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h9l4 4v14H6z"/><path d="M9 13l2 2 4-4"/></svg>Declarar</button>
+    <button role="tab" data-tab="facturas"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 8h6M9 12h6"/></svg>Facturas</button>
+    <button role="tab" data-tab="ayuda"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"/></svg>Ayuda</button>
   </nav>
 
   <main id="view"></main>
 
   <footer>
-    Herramienta de apoyo. Calcula con las tarifas de ISR del Anexo 8 de la RMF y la tabla RESICO del artículo 113-E de la LISR; verifica cada año que no hayan cambiado. Tú presentas la declaración en el portal del SAT con tu e.firma o contraseña. Para dictámenes, auditorías o casos complejos, consulta a un contador público.
+    Esta app te ayuda a calcular, pero tú presentas la declaración en el portal del SAT con tu contraseña o e.firma. Usa la tabla de RESICO (art. 113-E) y la tarifa del Anexo 8; revisa cada enero que no hayan cambiado. Para auditorías o casos complicados, consulta a un contador.
   </footer>
 </div>
 
 <script>
-/* ================= Constantes fiscales ================= */
 const MESES=['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
-// Tarifa mensual art. 96 LISR (Anexo 8 RMF): límite inferior, cuota fija, % excedente
 const TARIFA=[[0.01,0,1.92],[746.05,14.32,6.40],[6332.06,371.83,10.88],[11128.02,893.63,16],[12935.83,1182.88,17.92],[15487.72,1640.18,21.36],[31236.50,5004.12,23.52],[49233.01,9236.89,30],[93993.91,22665.17,32],[125325.21,32691.18,34],[375975.62,117912.32,35]];
-// RESICO personas físicas: mensual art. 113-E, anual art. 113-F
 const RESICO_M=[[25000,.01],[50000,.011],[83333.33,.015],[208333.33,.02],[Infinity,.025]];
-const RESICO_A=[[300000,.01],[600000,.011],[1000000,.015],[2500000,.02],[Infinity,.025]];
-const REGIMENES={'626':'RESICO (626)','612':'Actividades Empresariales y Profesionales (612)'};
-const USOS={G01:'Adquisición de mercancías',G02:'Devoluciones o descuentos',G03:'Gastos en general',I01:'Construcciones',I02:'Mobiliario y equipo de oficina',I03:'Equipo de transporte',I04:'Equipo de cómputo',I05:'Dados, troqueles, moldes',I06:'Comunicaciones telefónicas',I07:'Comunicaciones satelitales',I08:'Otra maquinaria',D01:'Honorarios médicos y dentales',D02:'Gastos médicos por incapacidad',D03:'Gastos funerales',D04:'Donativos',D05:'Intereses de crédito hipotecario',D06:'Aportaciones al SAR',D07:'Primas de seguros de gastos médicos',D08:'Transportación escolar',D09:'Depósitos de ahorro para el retiro',D10:'Colegiaturas',S01:'Sin efectos fiscales',CP01:'Pagos',CN01:'Nómina'};
+const REGIMENES={'626':'RESICO','612':'Actividades Empresariales y Profesionales'};
+const USOS={G01:'Compra de mercancía',G02:'Devoluciones o descuentos',G03:'Gastos en general',I01:'Construcciones',I02:'Mobiliario de oficina',I03:'Coche o transporte',I04:'Equipo de cómputo',I05:'Herramientas',I06:'Telefonía',I07:'Comunicación satelital',I08:'Otra maquinaria',D01:'Médicos y dentistas',D02:'Gastos médicos por incapacidad',D03:'Funerales',D04:'Donativos',D05:'Intereses de hipoteca',D06:'Aportaciones al retiro',D07:'Seguro de gastos médicos',D08:'Transporte escolar',D09:'Ahorro para el retiro',D10:'Colegiaturas',S01:'Sin efectos fiscales',CP01:'Pagos',CN01:'Nómina'};
 const FORMAS={'01':'Efectivo','02':'Cheque','03':'Transferencia','04':'Tarjeta de crédito','28':'Tarjeta de débito','99':'Por definir'};
-
 function resicoRate(x,t){if(x<=0)return 0;for(const [lim,r] of t) if(x<=lim) return r;return .025}
 function tarifa(base,n){if(base<=0)return 0;let row=TARIFA[0];for(const r of TARIFA){if(base>=r[0]*n)row=r}return row[1]*n+(base-row[0]*n)*row[2]/100}
 
-/* ================= Estado ================= */
 const KEY='micontador.v1';
-let S={records:[],rfc:'',reg:'auto',year:null,month:null,tab:'resumen',over:{},sample:true,facView:'emitidas',facAll:false};
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S.sample?{...S,records:[]}:S))}catch(e){}}
-function load(){try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.records&&s.records.length){S={...S,...s,sample:false};return true}if(s){S.tab=s.tab||S.tab}}catch(e){}return false}
+let S={records:[],rfc:'',reg:'auto',year:null,month:null,tab:'inicio',over:{},sample:true,facView:'emitidas',facAll:false,filed:{},stepsDone:{}};
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S.sample?{...S,records:[],over:{},filed:{},stepsDone:{}}:S))}catch(e){}}
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.records&&s.records.length){S={...S,...s,sample:false};if(!['inicio','declarar','facturas','ayuda'].includes(S.tab))S.tab='inicio';S.filed=S.filed||{};S.stepsDone=S.stepsDone||{};return true}}catch(e){}return false}
 
-/* ================= Utilidades ================= */
 const $=s=>document.querySelector(s);
 const money=new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'});
 const money0=new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN',maximumFractionDigits:0});
@@ -191,11 +233,12 @@ const f0=n=>money0.format(Math.round(n));
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const nnum=v=>{const x=parseFloat(v);return isFinite(x)?x:0};
 const ym=d=>{const m=/^(\d{4})-(\d{2})/.exec(d||'');return m?[+m[1],+m[2]]:[0,0]};
-function toast(t){const el=document.createElement('div');el.className='toast';el.textContent=t;document.body.appendChild(el);setTimeout(()=>el.remove(),2600)}
+const mkey=(y,m)=>`${y}-${String(m).padStart(2,'0')}`;
+function toast(t){const el=document.createElement('div');el.className='toast';el.textContent=t;document.body.appendChild(el);setTimeout(()=>el.remove(),2800)}
 function personaMoral(rfc){return rfc&&rfc.length===12}
 function generico(rfc){return rfc==='XAXX010101000'||rfc==='XEXX010101000'}
+const cap=s=>s?s[0].toUpperCase()+s.slice(1).toLowerCase():'';
 
-/* ================= Lectura de CFDI ================= */
 function parseCFDI(text,file){
   const doc=new DOMParser().parseFromString(text,'application/xml');
   if(doc.getElementsByTagName('parsererror').length) return null;
@@ -249,36 +292,34 @@ async function ingest(files){
       else bad++;
     }catch(e){bad++}
   }
-  if(!found.length){toast(bad?'No encontré CFDI válidos en esos archivos.':'No se seleccionaron archivos.');return}
-  if(S.sample){S.records=[];S.over={};S.sample=false;S.rfc='';S.reg='auto';S.year=null;S.month=null}
+  if(!found.length){toast(bad?'Esos archivos no tienen facturas que pueda leer. Sube los XML o el ZIP del SAT.':'No elegiste archivos.');return}
+  if(S.sample){S.records=[];S.over={};S.filed={};S.stepsDone={};S.sample=false;S.rfc='';S.reg='auto';S.year=null;S.month=null}
   const have=new Set(S.records.map(r=>r.uuid));let added=0;
   for(const r of found){if(!have.has(r.uuid)){S.records.push(r);have.add(r.uuid);added++}}
   if(!S.rfc) S.rfc=detectRFC();
   pickDefaults(true);save();render();
-  toast(`${added} factura${added===1?'':'s'} agregada${added===1?'':'s'}`+(found.length-added?`, ${found.length-added} repetida${found.length-added===1?'':'s'}`:'')+(bad?`, ${bad} archivo(s) no leídos`:''));
+  toast(`¡Listo! ${added} factura${added===1?'':'s'} nueva${added===1?'':'s'}`+(found.length-added?` (${found.length-added} ya estaba${found.length-added===1?'':'n'})`:'')+(bad?`. ${bad} archivo(s) no se pudieron leer`:''));
 }
 
-/* ================= Detección ================= */
 function detectRFC(){const c={};for(const r of S.records){[r.emisorRfc,r.receptorRfc].forEach(x=>{if(x&&!generico(x))c[x]=(c[x]||0)+1})}return Object.entries(c).sort((a,b)=>b[1]-a[1])[0]?.[0]||''}
 function detectReg(){const c={};for(const r of S.records){if(r.emisorRfc===S.rfc&&r.emisorRegimen)c[r.emisorRegimen]=(c[r.emisorRegimen]||0)+2;if(r.receptorRfc===S.rfc&&r.receptorRegimen)c[r.receptorRegimen]=(c[r.receptorRegimen]||0)+1}return Object.entries(c).sort((a,b)=>b[1]-a[1])[0]?.[0]||''}
 function regimen(){if(S.reg!=='auto')return S.reg;const d=detectReg();return d==='612'?'612':'626'}
+function myName(){for(const r of S.records){if(r.emisorRfc===S.rfc&&r.emisorNombre)return r.emisorNombre;if(r.receptorRfc===S.rfc&&r.receptorNombre)return r.receptorNombre}return ''}
 function role(r){if(r.emisorRfc===S.rfc)return 'emitida';if(r.receptorRfc===S.rfc)return 'recibida';return 'ajena'}
 const isOff=r=>!!(S.over[r.uuid]&&S.over[r.uuid].off);
-
 function classify(r){
   const o=S.over[r.uuid]&&S.over[r.uuid].cls;
-  if(o) return {cls:o,reason:'Lo marcaste tú'};
+  if(o) return {cls:o,reason:'Lo elegiste tú'};
   const u=(r.uso||'').toUpperCase();
-  if(r.forma==='01'&&r.total*r.tc>2000) return {cls:'no',reason:'Pagado en efectivo por más de $2,000: no es deducible'};
-  if(u==='S01') return {cls:'no',reason:'Uso S01, sin efectos fiscales: pide al proveedor que la refacture con G03'};
-  if(u.startsWith('D')) return {cls:'personal',reason:'Deducción personal: se usa en tu declaración anual'};
-  if(u.startsWith('I')) return {cls:'inversion',reason:'Inversión: el IVA se acredita; el ISR se deduce por depreciación anual'};
-  if(u.startsWith('G')) return {cls:'deducible',reason:'Gasto del negocio'};
-  return {cls:'no',reason:'Uso de CFDI '+(u||'desconocido')};
+  if(r.forma==='01'&&r.total*r.tc>2000) return {cls:'no',reason:'La pagaste en efectivo y pasa de $2,000, así que no cuenta'};
+  if(u==='S01') return {cls:'no',reason:'Dice "sin efectos fiscales". Pide que te la hagan con uso G03'};
+  if(u.startsWith('D')) return {cls:'personal',reason:'Gasto personal: te sirve en tu declaración anual'};
+  if(u.startsWith('I')) return {cls:'inversion',reason:'Equipo o inversión: su IVA sí cuenta'};
+  if(u.startsWith('G')) return {cls:'deducible',reason:'Gasto de tu trabajo: su IVA cuenta'};
+  return {cls:'no',reason:'Uso '+(u||'desconocido')};
 }
 function amounts(r){const k=r.tc;return {base:(r.subtotal-r.descuento)*k,iva:r.ivaTras*k,isrRet:r.isrRet*k,ivaRet:r.ivaRet*k}}
 
-/* ================= Cálculo ================= */
 function compute(year){
   const reg=regimen();
   const byId=new Map(S.records.map(r=>[r.uuid,r]));
@@ -309,35 +350,42 @@ function compute(year){
         }}
     }
   }
-  // ISR e IVA por mes
   let accIng=0,accDed=0,accRet=0,accPag=0,favor=0;
   for(let m=1;m<=12;m++){const x=M[m];
-    x.ivaNeto=x.ivaCob-x.ivaRet-x.ivaAcr;x.favorPrev=favor;x.favorAplicado=0;x.ivaFavor=0;
+    x.ivaNeto=x.ivaCob-x.ivaRet-x.ivaAcr;x.favorAplicado=0;x.ivaFavor=0;
     if(x.ivaNeto<0){x.ivaPagar=0;x.ivaFavor=-x.ivaNeto;favor+=x.ivaFavor}
     else{x.favorAplicado=Math.min(favor,x.ivaNeto);x.ivaPagar=x.ivaNeto-x.favorAplicado;favor-=x.favorAplicado}
     if(reg==='626'){x.tasa=resicoRate(x.ing,RESICO_M);x.isrCausado=Math.max(0,x.ing)*x.tasa;x.isrPagar=Math.max(0,x.isrCausado-x.isrRet)}
     else{accIng+=x.ing;accDed+=x.ded;accRet+=x.isrRet;x.accIng=accIng;x.accDed=accDed;x.accRet=accRet;x.accPagPrev=accPag;
       x.utilidad=Math.max(0,accIng-accDed);x.isrCausado=tarifa(x.utilidad,m);x.isrPagar=Math.max(0,x.isrCausado-accPag-accRet);accPag+=x.isrPagar}
+    x.total=Math.round(x.isrPagar)+Math.round(x.ivaPagar);
   }
   const tot=k=>M.slice(1).reduce((s,x)=>s+(x[k]||0),0);
-  return {M,paid,estimados,sueldos,reg,favorFinal:favor,tot};
+  return {M,paid,estimados,sueldos,reg,tot};
 }
 
-/* ================= Fechas ================= */
 function venc(year,month){const d=new Date(year,month,17);if(d.getDay()===6)d.setDate(19);else if(d.getDay()===0)d.setDate(18);return d}
-const fdate=d=>d.toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+const fdate=d=>d.toLocaleDateString('es-MX',{day:'numeric',month:'long'});
+const fdateY=d=>d.toLocaleDateString('es-MX',{day:'numeric',month:'long',year:'numeric'});
+function monthStatus(y,m){
+  if(S.filed[mkey(y,m)])return {cls:'ok',txt:'Presentada'};
+  const due=venc(y,m),now=new Date();const days=Math.ceil((due-now)/864e5);
+  if(now<new Date(y,m,1))return {cls:'off',txt:'Aún no toca'};
+  if(days<0)return {cls:'bad',txt:'Atrasada'};
+  if(days<=5)return {cls:'warn',txt:`Vence en ${days} día${days===1?'':'s'}`};
+  return {cls:'info',txt:`Vence el ${fdate(due)}`};
+}
 
-/* ================= Ejemplo ================= */
 function sampleData(){
-  const Y=new Date().getFullYear(),me='MOLA900215K39',myName='EJEMPLO FREELANCER';
+  const Y=new Date().getFullYear(),me='MOLA900215K39',nm='EJEMPLO FREELANCER';
   const cli=[['MDA150610QZ2','MAREA DIGITAL AGENCIA','601'],['TCO190823LM4','TIENDA COLIBRI','601'],['RAGJ850704HT1','JORGE RAMIREZ GIL','612']];
   const recs=[];let n=1;
   const id=()=>('EJEMPLO-'+String(n++).padStart(4,'0')+'-0000-0000-000000000000').toUpperCase();
   const pad=x=>String(x).padStart(2,'0');
   const inv=(m,d,c,base,desc,metodo='PUE')=>{const pm=c[0].length===12;const iva=+(base*.16).toFixed(2),ir=pm?+(base*.0125).toFixed(2):0,vr=pm?+(base*.106667).toFixed(2):0;
-    const r={uuid:id(),version:'4.0',fecha:`${Y}-${pad(m)}-${pad(d)}T11:00:00`,tipo:'I',metodo,forma:metodo==='PPD'?'99':'03',moneda:'MXN',tc:1,subtotal:base,descuento:0,total:+(base+iva-ir-vr).toFixed(2),ivaTras:iva,isrRet:ir,ivaRet:vr,emisorRfc:me,emisorNombre:myName,emisorRegimen:'626',receptorRfc:c[0],receptorNombre:c[1],receptorRegimen:c[2],uso:'G03',desc,pagos:[],sample:true};recs.push(r);return r};
-  const gas=(m,d,rfc,name,base,uso,forma,desc,iva=true)=>{const v=iva?+(base*.16).toFixed(2):0;recs.push({uuid:id(),version:'4.0',fecha:`${Y}-${pad(m)}-${pad(d)}T09:30:00`,tipo:'I',metodo:'PUE',forma,moneda:'MXN',tc:1,subtotal:base,descuento:0,total:+(base+v).toFixed(2),ivaTras:v,isrRet:0,ivaRet:0,emisorRfc:rfc,emisorNombre:name,emisorRegimen:'601',receptorRfc:me,receptorNombre:myName,receptorRegimen:'626',uso,desc,pagos:[],sample:true})};
-  const last=Math.max(1,new Date().getMonth()); // hasta el mes anterior
+    const r={uuid:id(),version:'4.0',fecha:`${Y}-${pad(m)}-${pad(d)}T11:00:00`,tipo:'I',metodo,forma:metodo==='PPD'?'99':'03',moneda:'MXN',tc:1,subtotal:base,descuento:0,total:+(base+iva-ir-vr).toFixed(2),ivaTras:iva,isrRet:ir,ivaRet:vr,emisorRfc:me,emisorNombre:nm,emisorRegimen:'626',receptorRfc:c[0],receptorNombre:c[1],receptorRegimen:c[2],uso:'G03',desc,pagos:[]};recs.push(r);return r};
+  const gas=(m,d,rfc,name,base,uso,forma,desc,iva=true)=>{const v=iva?+(base*.16).toFixed(2):0;recs.push({uuid:id(),version:'4.0',fecha:`${Y}-${pad(m)}-${pad(d)}T09:30:00`,tipo:'I',metodo:'PUE',forma,moneda:'MXN',tc:1,subtotal:base,descuento:0,total:+(base+v).toFixed(2),ivaTras:v,isrRet:0,ivaRet:0,emisorRfc:rfc,emisorNombre:name,emisorRegimen:'601',receptorRfc:me,receptorNombre:nm,receptorRegimen:'626',uso,desc,pagos:[]})};
+  const last=Math.max(1,new Date().getMonth());
   for(let m=1;m<=last;m++){
     inv(m,5,cli[0],16000+((m*1370)%5000),'Gestión de campañas en redes sociales');
     if(m%2===0)inv(m,14,cli[1],9500+((m*610)%2500),'Diseño de anuncios publicitarios');
@@ -349,214 +397,184 @@ function sampleData(){
   if(last>=3)gas(3,11,'CMX090301PL7','COMPUTO MAX',27500,'I04','04','Laptop para diseño');
   if(last>=5)gas(5,20,'LOHC800908MN2','CLAUDIA LOPEZ HERRERA',1500,'D01','03','Consulta médica',false);
   if(last>=7)gas(7,9,'PFE110225KK3','PAPELERIA EL FARO',3200,'G03','01','Material de oficina pagado en efectivo');
-  if(last>=3){const p=inv(last-1,26,cli[1],12000,'Campaña de temporada (pago en parcialidades)','PPD');
-    recs.push({uuid:id(),version:'4.0',fecha:`${Y}-${pad(last)}-10T12:00:00`,tipo:'P',metodo:'',forma:'',moneda:'XXX',tc:1,subtotal:0,descuento:0,total:0,ivaTras:0,isrRet:0,ivaRet:0,emisorRfc:me,emisorNombre:myName,emisorRegimen:'626',receptorRfc:cli[1][0],receptorNombre:cli[1][1],receptorRegimen:'601',uso:'CP01',desc:'Pago',pagos:[{fecha:`${Y}-${pad(last)}-09T12:00:00`,tc:1,monto:+(p.total/2).toFixed(2),docs:[{id:p.uuid,impPagado:+(p.total/2).toFixed(2),equiv:1,tax:null}]}],sample:true});
+  if(last>=3){const p=inv(last-1,26,cli[1],12000,'Campaña de temporada (en parcialidades)','PPD');
+    recs.push({uuid:id(),version:'4.0',fecha:`${Y}-${pad(last)}-10T12:00:00`,tipo:'P',metodo:'',forma:'',moneda:'XXX',tc:1,subtotal:0,descuento:0,total:0,ivaTras:0,isrRet:0,ivaRet:0,emisorRfc:me,emisorNombre:nm,emisorRegimen:'626',receptorRfc:cli[1][0],receptorNombre:cli[1][1],receptorRegimen:'601',uso:'CP01',desc:'Pago',pagos:[{fecha:`${Y}-${pad(last)}-09T12:00:00`,tc:1,monto:+(p.total/2).toFixed(2),docs:[{id:p.uuid,impPagado:+(p.total/2).toFixed(2),equiv:1,tax:null}]}]});
     inv(last,28,cli[0],8000,'Producción de video publicitario','PPD');}
   return {recs,me};
 }
 
-/* ================= Defaults ================= */
 function years(){const s=new Set([new Date().getFullYear()]);S.records.forEach(r=>{const y=ym(r.fecha)[0];if(y)s.add(y);r.pagos.forEach(p=>{const y2=ym(p.fecha)[0];if(y2)s.add(y2)})});return [...s].sort((a,b)=>b-a)}
 function pickDefaults(force){
   const now=new Date();
   if(force||!S.year){const ys=years().filter(y=>S.records.some(r=>ym(r.fecha)[0]===y));S.year=ys.includes(now.getFullYear())?now.getFullYear():(ys[0]||now.getFullYear())}
   if(force||!S.month){
-    let m=S.year===now.getFullYear()?Math.max(1,now.getMonth()):12; // mes anterior = el que toca declarar
+    let m=S.year===now.getFullYear()?Math.max(1,now.getMonth()):12;
     const ms=S.records.filter(r=>ym(r.fecha)[0]===S.year).map(r=>ym(r.fecha)[1]);
     if(ms.length&&!ms.includes(m)) m=Math.min(m,Math.max(...ms));
     S.month=m;
   }
 }
 
-/* ================= Render ================= */
-function renderControls(){
-  $('#f-rfc').value=S.rfc;
-  const d=detectReg();
-  $('#f-reg').innerHTML=`<option value="auto">Automático${d?': '+(REGIMENES[d]||d):''}</option><option value="626">${REGIMENES['626']}</option><option value="612">${REGIMENES['612']}</option>`;
-  $('#f-reg').value=S.reg;
-  $('#f-year').innerHTML=years().map(y=>`<option>${y}</option>`).join('');$('#f-year').value=S.year;
-  $('#f-month').innerHTML=MESES.slice(1).map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');$('#f-month').value=S.month;
-  $('#sampleBanner').hidden=!S.sample;
-  $('#clear').hidden=S.sample;
-  document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===S.tab));
-}
-
 function checks(C){
-  const out=[];const reg=C.reg;
-  const add=(lvl,txt)=>out.push([lvl,txt]);
+  const out=[];const reg=C.reg;const add=(l,t)=>out.push([l,t]);
   const mine=S.records.filter(r=>!isOff(r));
   const ajenas=S.records.filter(r=>role(r)==='ajena').length;
-  if(!S.rfc) add('bad','No se detectó tu RFC. Escríbelo arriba para separar facturas emitidas y recibidas.');
-  if(ajenas) add('warn',`${ajenas} XML no tienen tu RFC ni como emisor ni como receptor y se ignoraron.`);
-  const d=detectReg();if(d&&d!=='626'&&d!=='612')add('warn',`Tus facturas indican el régimen ${d}. Esta app calcula RESICO (626) y Actividades Empresariales y Profesionales (612); revisa tu Constancia de Situación Fiscal.`);
-  if(S.reg!=='auto'&&d&&S.reg!==d)add('warn',`Elegiste ${REGIMENES[S.reg]} pero tus facturas dicen ${REGIMENES[d]||d}. Calcula con el régimen que aparece en tu Constancia.`);
+  if(!S.rfc) add('bad','No encontré tu RFC. Escríbelo en Ayuda → Ajustes.');
+  if(ajenas) add('warn',`${ajenas} factura(s) no tienen tu RFC, así que no las conté.`);
+  const d=detectReg();if(d&&d!=='626'&&d!=='612')add('warn',`Tus facturas dicen régimen ${d}. Esta app calcula RESICO (626). Revisa tu Constancia de Situación Fiscal.`);
   for(const r of mine){if(role(r)!=='emitida'||r.tipo!=='I'||r.metodo!=='PPD'||ym(r.fecha)[0]!==S.year)continue;
-    const p=C.paid.get(r.uuid)||0;if(p<r.total-1)add('info',`Factura PPD a ${esc(r.receptorNombre||r.receptorRfc)} por ${f(r.total)}: falta cobrar ${f(r.total-p)}. Cuenta como ingreso hasta que te paguen y emitas el complemento de pago.`)}
+    const p=C.paid.get(r.uuid)||0;if(p<r.total-1)add('info',`A ${esc(r.receptorNombre||r.receptorRfc)} le facturaste ${f(r.total)} "a pagar después" (PPD) y falta cobrar ${f(r.total-p)}. Cuenta hasta que te paguen y hagas el complemento de pago.`)}
   if(reg==='626'){const sinRet=mine.filter(r=>role(r)==='emitida'&&r.tipo==='I'&&ym(r.fecha)[0]===S.year&&personaMoral(r.receptorRfc)&&r.isrRet===0);
-    if(sinRet.length)add('warn',`${sinRet.length} factura(s) a empresas (personas morales) sin retención de ISR. En RESICO deben retenerte 1.25% de ISR y normalmente dos terceras partes del IVA. Revisa con tu cliente.`)}
-  if(reg==='612'){const sinRet=mine.filter(r=>role(r)==='emitida'&&r.tipo==='I'&&ym(r.fecha)[0]===S.year&&personaMoral(r.receptorRfc)&&r.isrRet===0);
-    if(sinRet.length)add('info',`${sinRet.length} factura(s) a empresas sin retención de ISR. Si tus servicios son profesionales (honorarios), la empresa debe retenerte 10% de ISR y dos terceras partes del IVA.`)}
+    if(sinRet.length)add('warn',`${sinRet.length} factura(s) a empresas no traen retención. En RESICO las empresas deben quitarte 1.25% de ISR (y casi siempre parte del IVA) y pagarlo por ti. Coméntalo con tu cliente.`)}
   const rec=mine.filter(r=>role(r)==='recibida'&&r.tipo==='I'&&ym(r.fecha)[0]===S.year);
-  const cash=rec.filter(r=>classify(r).reason.startsWith('Pagado en efectivo'));
-  if(cash.length)add('warn',`${cash.length} gasto(s) pagado(s) en efectivo por más de $2,000. No son deducibles ni acreditas su IVA; paga con tarjeta o transferencia.`);
-  const s01=rec.filter(r=>(r.uso||'').toUpperCase()==='S01');if(s01.length)add('warn',`${s01.length} factura(s) de gastos con uso S01 (sin efectos fiscales). Pide que te las refacturen con uso G03.`);
-  const invs=rec.filter(r=>classify(r).cls==='inversion');if(invs.length)add('info',`${invs.length} compra(s) de inversión (equipo, mobiliario). Su IVA se acredita en el mes; ${reg==='612'?'el ISR se deduce por depreciación (30% anual para equipo de cómputo) y aquí no se incluye en el pago mensual':'en RESICO no se deducen para ISR'}.`);
-  const pers=rec.filter(r=>classify(r).cls==='personal');if(pers.length)add('info',`${pers.length} factura(s) de deducciones personales (médicos, colegiaturas, etc.). Guárdalas para tu declaración anual de abril.`);
+  const cash=rec.filter(r=>classify(r).reason.startsWith('La pagaste en efectivo'));
+  if(cash.length)add('warn',`${cash.length} gasto(s) pagado(s) en efectivo de más de $2,000 no cuentan. Mejor paga con tarjeta o transferencia.`);
+  const s01=rec.filter(r=>(r.uso||'').toUpperCase()==='S01');if(s01.length)add('warn',`${s01.length} factura(s) de gastos dicen "sin efectos fiscales". Pide que te las rehagan con uso G03 (gastos en general).`);
+  const pers=rec.filter(r=>classify(r).cls==='personal');if(pers.length)add('info',`Tienes ${pers.length} factura(s) de doctor, colegiaturas o similares. Guárdalas para tu declaración anual de abril.`);
   const anual=C.tot('ing');
-  if(reg==='626'&&anual>3500000)add('bad',`Tus ingresos del año (${f0(anual)}) superan $3,500,000. Dejas de tributar en RESICO y debes pasar a Actividades Empresariales y Profesionales.`);
-  else if(reg==='626'&&anual>3000000)add('warn',`Llevas ${f0(anual)} de ingresos. El límite de RESICO es $3,500,000 al año.`);
-  if(C.estimados)add('info',`${C.estimados} pago(s) se estimaron con IVA al 16% porque falta la factura original. Carga la factura para un cálculo exacto.`);
-  if(C.sueldos)add('info',`También recibes sueldos (${f0(C.sueldos)} en el año). Tu patrón retiene ese ISR; súmalo en tu declaración anual.`);
-  add('info','El XML no dice si una factura fue cancelada. Verifica en el portal del SAT y márcala como "Excluir" en la pestaña Facturas.');
+  if(reg==='626'&&anual>3500000)add('bad',`Este año llevas ${f0(anual)}. Pasaste el límite de RESICO ($3.5 millones) y tienes que cambiar de régimen.`);
+  if(C.estimados)add('info',`${C.estimados} pago(s) los calculé con IVA al 16% porque falta su factura original. Súbela para que salga exacto.`);
+  if(C.sueldos)add('info',`También tienes sueldo de un trabajo (${f0(C.sueldos)} este año). Súmalo en tu declaración anual.`);
+  add('info','El XML no dice si una factura se canceló. Revísalo en el portal del SAT y, si alguna está cancelada, márcala con "No contar" en Facturas.');
   return out;
 }
 
-function vResumen(){
-  const C=compute(S.year),x=C.M[S.month],reg=C.reg;const due=venc(S.year,S.month);
-  const days=Math.ceil((due-new Date())/864e5);
-  const duePill=days<0?`<span class="pill bad">Venció hace ${-days} día${days===-1?'':'s'}</span>`:days<=5?`<span class="pill warn">Faltan ${days} día${days===1?'':'s'}</span>`:`<span class="pill ok">Faltan ${days} días</span>`;
-  const total=Math.round(x.isrPagar)+Math.round(x.ivaPagar);
-  const rows=[];for(let m=1;m<=12;m++){const y=C.M[m];const has=y.nEm||y.nRe;
-    rows.push(`<tr class="click ${m===S.month?'sel':''}" data-m="${m}"><td>${MESES[m]}</td><td class="r">${has?f(y.ing):'—'}</td><td class="r">${has?f(reg==='626'?y.gastos:y.ded):'—'}</td><td class="r">${has?f(y.isrPagar):'—'}</td><td class="r">${has?(y.ivaFavor>0?`<span style="color:var(--ok)">${f(-y.ivaFavor)}</span>`:f(y.ivaPagar)):'—'}</td><td class="r">${has?f0(Math.round(y.isrPagar)+Math.round(y.ivaPagar)):'—'}</td></tr>`)}
-  rows.push(`<tr class="total"><td>Total ${S.year}</td><td class="r">${f(C.tot('ing'))}</td><td class="r">${f(reg==='626'?C.tot('gastos'):C.tot('ded'))}</td><td class="r">${f(C.tot('isrPagar'))}</td><td class="r">${f(C.tot('ivaPagar'))}</td><td class="r">${f0(C.tot('isrPagar')+C.tot('ivaPagar'))}</td></tr>`);
+function vInicio(){
+  const C=compute(S.year),x=C.M[S.month],due=venc(S.year,S.month),st=monthStatus(S.year,S.month);
+  const tiles=[];for(let m=1;m<=12;m++){const y=C.M[m];const s=monthStatus(S.year,m);const has=y.nEm||y.nRe;
+    tiles.push(`<button class="month ${m===S.month?'sel':''}" data-m="${m}"><b>${MESES[m]}</b><span class="v num">${has?'Pagar '+f0(y.total):'Sin facturas'}</span><span class="pill ${s.cls}">${s.txt}</span></button>`)}
   const ck=checks(C);
   return `<div style="display:grid;gap:18px">
-  <div class="kpis">
-    <div class="kpi"><span class="label">Ingresos cobrados · ${MESES[S.month]}</span><span class="v">${f(x.ing)}</span><span class="sub">Sin IVA. ${x.nEm} factura(s) o pago(s)</span></div>
-    <div class="kpi"><span class="label">ISR a pagar</span><span class="v">${f(x.isrPagar)}</span><span class="sub">${reg==='626'?`Tasa RESICO ${(x.tasa*100).toFixed(2)}% · retenido ${f(x.isrRet)}`:`Utilidad acumulada ${f(x.utilidad)}`}</span></div>
-    <div class="kpi"><span class="label">IVA ${x.ivaFavor>0?'a favor':'a pagar'}</span><span class="v" style="${x.ivaFavor>0?'color:var(--ok)':''}">${f(x.ivaFavor>0?x.ivaFavor:x.ivaPagar)}</span><span class="sub">Cobrado ${f(x.ivaCob)} · acreditable ${f(x.ivaAcr)} · retenido ${f(x.ivaRet)}</span></div>
-    <div class="kpi hl"><span class="label">Total a pagar al SAT</span><span class="v">${f0(total)}</span><span class="sub">Límite: ${fdate(due)}</span>${duePill}</div>
-  </div>
-  <div class="panel"><div class="toolbar"><h2>Revisión de tus facturas</h2><span class="muted small">${REGIMENES[reg]}</span></div>
-    <div class="checks">${ck.map(([l,t])=>`<div class="check"><span class="pill ${l}">${l==='bad'?'Urgente':l==='warn'?'Revisa':'Nota'}</span><p>${t}</p></div>`).join('')}</div></div>
-  <div style="display:grid;gap:8px"><div class="toolbar"><h2>Tu año ${S.year}</h2><span class="muted small">Toca un mes para verlo</span></div>
-  <div class="tablebox"><table id="yearTable"><thead><tr><th>Mes</th><th class="r">Ingresos</th><th class="r">${reg==='626'?'Gastos':'Gastos deducibles'}</th><th class="r">ISR</th><th class="r">IVA</th><th class="r">Total</th></tr></thead><tbody>${rows.join('')}</tbody></table></div></div>
+   <section class="big">
+     <div class="row"><span class="chip">Declaración de ${MESES[S.month]} ${S.year}</span><span class="pill ${st.cls}">${st.txt}</span></div>
+     <div style="display:grid;gap:6px"><span class="muted" style="font-weight:700">Te toca pagar al SAT</span><span class="amt num">${f0(x.total)}</span>
+       <span class="muted">${S.filed[mkey(S.year,S.month)]?'Ya la marcaste como presentada.':`Antes del ${fdateY(due)}.`} ${x.nEm||x.nRe?'':'No tienes facturas este mes: igual se presenta, en ceros.'}</span></div>
+     <div class="parts">
+       <div class="part"><span class="lbl">ISR</span><span class="v num">${f0(x.isrPagar)}</span><span class="small muted">El impuesto por lo que ganaste. ${C.reg==='626'?`En RESICO es el ${(x.tasa*100).toFixed(1).replace('.0','')}% de lo cobrado${x.isrRet?`, menos ${f0(x.isrRet)} que ya pagaron tus clientes por ti`:''}.`:''}</span></div>
+       <div class="part"><span class="lbl">IVA</span><span class="v num" ${x.ivaFavor>0?'style="color:var(--mint-deep)"':''}>${x.ivaFavor>0?f0(x.ivaFavor)+' a tu favor':f0(x.ivaPagar)}</span><span class="small muted">El 16% que cobraste, menos el IVA de tus gastos de trabajo${x.ivaRet?' y lo que te retuvieron':''}.</span></div>
+     </div>
+     <div><button class="primary" data-go="declarar">Ver cómo declararla, paso a paso</button></div>
+   </section>
+   <div class="stats">
+     <div class="stat"><span class="lbl">Cobraste</span><span class="v num">${f0(x.ing)}</span><span class="small muted">Sin IVA, en ${MESES[S.month].toLowerCase()}</span></div>
+     <div class="stat"><span class="lbl">Gastaste</span><span class="v num">${f0(x.gastos)}</span><span class="small muted">Según tus facturas recibidas</span></div>
+     <div class="stat"><span class="lbl">En el año</span><span class="v num">${f0(C.tot('ing'))}</span><span class="small muted">Cobrado en ${S.year}</span></div>
+   </div>
+   <section class="card"><h2>Cositas por revisar</h2>
+     <ul class="checks">${ck.map(([l,t])=>`<li><span class="dotc ${l}">${l==='bad'?'!':l==='warn'?'?':'i'}</span><p>${t}</p></li>`).join('')}</ul></section>
+   <section style="display:grid;gap:10px"><div class="row"><h2>Tus meses de ${S.year}</h2><span class="small muted">Toca un mes para verlo</span></div>
+     <div class="months">${tiles.join('')}</div></section>
   </div>`;
 }
 
-function line(k,sub,v,res){return `<div class="row${res?' res':''}"><div class="k">${k}${sub?`<small>${sub}</small>`:''}</div><div class="v">${f0(v)}</div><button class="copy" data-copy="${Math.round(v)}">Copiar</button></div>`}
-function vDeclaracion(){
-  const C=compute(S.year),x=C.M[S.month],reg=C.reg,due=venc(S.year,S.month);
-  const isr=reg==='626'?`
-   <div class="sec"><div class="hd"><h3>ISR · Régimen Simplificado de Confianza</h3><span class="pill info">Tasa ${(x.tasa*100).toFixed(2)}%</span></div>
-    ${line('Ingresos cobrados del mes','El SAT los precarga de tus facturas. Si no coinciden, revisa cancelaciones y complementos de pago.',x.ing)}
-    ${line('ISR causado',`${f(x.ing)} × ${(x.tasa*100).toFixed(2)}%`,x.isrCausado)}
-    ${line('ISR retenido por personas morales','1.25% que te retuvieron tus clientes empresa',x.isrRet)}
-    ${line('ISR a cargo','',x.isrPagar,true)}</div>`:`
-   <div class="sec"><div class="hd"><h3>ISR · Actividades Empresariales y Profesionales</h3><span class="pill info">Pago provisional acumulado</span></div>
-    ${line('Ingresos del periodo','Cobrados en el mes, sin IVA',x.ing)}
-    ${line('Ingresos de periodos anteriores',`Enero a ${MESES[S.month-1]||'—'}`,x.accIng-x.ing)}
-    ${line('Compras y gastos del periodo','Gastos deducibles pagados en el mes, sin IVA',x.ded)}
-    ${line('Compras y gastos de periodos anteriores','',x.accDed-x.ded)}
-    ${line('Base gravable (utilidad acumulada)','',x.utilidad)}
-    ${line('ISR conforme a la tarifa',`Tarifa del art. 96 por ${S.month} mes(es)`,x.isrCausado)}
-    ${line('Pagos provisionales anteriores','',x.accPagPrev)}
-    ${line('ISR retenido (acumulado)','10% que te retuvieron tus clientes empresa',x.accRet)}
-    ${line('ISR a cargo','',x.isrPagar,true)}</div>`;
-  const iva=`<div class="sec"><div class="hd"><h3>IVA</h3><span class="pill info">Tasa 16%</span></div>
-    ${line('Actividades gravadas a la tasa del 16%','Ingresos cobrados sin IVA',x.ing)}
-    ${line('IVA cobrado','',x.ivaCob)}
-    ${line('IVA retenido por tus clientes','',x.ivaRet)}
-    ${line('IVA acreditable','IVA de gastos del negocio pagados en el mes',x.ivaAcr)}
-    ${x.favorAplicado>0?line('Saldo a favor de meses anteriores aplicado','',x.favorAplicado):''}
-    ${x.ivaFavor>0?line('IVA a favor','Puedes usarlo los meses siguientes o pedir devolución',x.ivaFavor,true):line('IVA a cargo','',x.ivaPagar,true)}</div>`;
-  return `<div class="steps">
-   <div class="panel"><div class="toolbar"><h2>Declaración de ${MESES[S.month]} ${S.year}</h2><span class="pill ${(due-new Date())<0?'bad':'info'}">Vence ${fdate(due)}</span></div>
-   <ol class="how small">
-     <li>Entra a <a href="https://www.sat.gob.mx" target="_blank" rel="noopener">sat.gob.mx</a> → Declaraciones → Declaración provisional o definitiva de impuestos federales, con tu e.firma o contraseña.</li>
-     <li>Elige ejercicio ${S.year}, periodo ${MESES[S.month]}, tipo normal.</li>
-     <li>Captura los valores de abajo. El SAT pide pesos sin centavos.</li>
-     <li>Envía, descarga el acuse y paga con la línea de captura en tu banco antes de que venza.</li>
-   </ol></div>
-   ${isr}${iva}
-   <div class="panel"><div class="toolbar"><h3>Total a pagar</h3><span class="num" style="font-size:1.3rem;font-weight:600">${f0(Math.round(x.isrPagar)+Math.round(x.ivaPagar))}</span></div>
-   <p class="small muted">${reg==='626'?'En RESICO no presentas DIOT ni contabilidad electrónica.':'En este régimen también presentas la DIOT del mes (vence el último día del mes siguiente).'} Según el sexto dígito numérico de tu RFC, el SAT suele dar uno o dos días hábiles extra; tómalo como margen, no como plan.</p></div>
+function capr(k,sub,v,res){return `<div class="capr${res?' res':''}"><div class="k">${k}${sub?`<small>${sub}</small>`:''}</div><div class="v num">${f0(v)}</div><button class="copy soft" data-copy="${Math.round(v)}">Copiar</button></div>`}
+function vDeclarar(){
+  const C=compute(S.year),x=C.M[S.month],reg=C.reg,due=venc(S.year,S.month),k=mkey(S.year,S.month);
+  const done=S.stepsDone[k]||{};const late=new Date()>due&&!S.filed[k];const ms=monthStatus(S.year,S.month);
+  const step=(i,title,body)=>`<li class="step ${done[i]?'done':''}"><button class="n" data-step="${i}" aria-pressed="${!!done[i]}" title="${done[i]?'Marcar como pendiente':'Marcar como hecho'}">${done[i]?'✓':i}</button><div class="body"><h3>${title}</h3>${body}</div></li>`;
+  const isr=reg==='626'?`<div class="cap">
+      ${capr('Ingresos cobrados','El SAT ya los trae. Revisa que se parezcan a este número.',x.ing)}
+      ${capr('ISR retenido','Lo que tus clientes empresa ya pagaron por ti',x.isrRet)}
+      ${capr('ISR a pagar','',x.isrPagar,true)}</div>`:`<div class="cap">
+      ${capr('Ingresos del mes','',x.ing)}${capr('Gastos deducibles del mes','',x.ded)}${capr('Ingresos de meses anteriores','',x.accIng-x.ing)}${capr('Gastos de meses anteriores','',x.accDed-x.ded)}
+      ${capr('Pagos provisionales anteriores','',x.accPagPrev)}${capr('ISR retenido acumulado','',x.accRet)}${capr('ISR a pagar','',x.isrPagar,true)}</div>`;
+  const plain=(k2,v)=>`<div class="capr"><div class="k">${k2}</div><div class="v">${v}</div><span></span></div>`;
+  return `<div style="display:grid;gap:14px">
+   <section class="card"><div class="row"><h2>Declarar ${MESES[S.month]} ${S.year}</h2><span class="pill ${ms.cls}">${ms.txt}</span></div>
+     <p class="muted">Sigue los pasos con el portal del SAT abierto. Toca el número de cada paso para palomearlo.</p>
+     ${late?'<p class="tip">Esta ya se pasó de fecha. No pasa nada: se hace igual y el SAT te suma unos recargos. Si la presentas antes de que el SAT te la pida, normalmente no hay multa.</p>':''}</section>
+   <ol class="steps">
+    ${step(1,'Entra al portal del SAT',`<p>Abre <a href="https://www.sat.gob.mx" target="_blank" rel="noopener">sat.gob.mx</a>, ve a <b>Declaraciones</b> y elige <b>"Presenta tu declaración en el Régimen Simplificado de Confianza (RESICO) personas físicas"</b>. Entra con tu RFC y contraseña o con tu e.firma.</p>`)}
+    ${step(2,'Elige el mes',`<p>Llena así:</p><div class="cap">${plain('Ejercicio',S.year)}${plain('Periodicidad','Mensual')}${plain('Periodo',MESES[S.month])}${plain('Tipo de declaración','Normal')}</div>`)}
+    ${step(3,'Revisa el ISR',`<p>Abre la parte de <b>ISR</b>. Casi todo viene lleno; solo compara.</p>${isr}<p class="tip">Si los ingresos del SAT no coinciden, puede ser una factura cancelada o un pago que falta. El SAT pide pesos sin centavos.</p>`)}
+    ${step(4,'Revisa el IVA',`<div class="cap">
+      ${capr('Actividades gravadas al 16%','Lo que cobraste, sin IVA',x.ing)}
+      ${capr('IVA cobrado','',x.ivaCob)}
+      ${capr('IVA retenido','Lo que te retuvieron tus clientes',x.ivaRet)}
+      ${capr('IVA acreditable','El IVA de tus gastos de trabajo',x.ivaAcr)}
+      ${x.favorAplicado>0?capr('Saldo a favor de meses pasados','',x.favorAplicado):''}
+      ${x.ivaFavor>0?capr('IVA a tu favor','Este mes no pagas IVA y lo usas después',x.ivaFavor,true):capr('IVA a pagar','',x.ivaPagar,true)}</div>
+      <p class="tip">En "IVA acreditable" el SAT te enseña tus facturas de gastos: marca solo las de tu trabajo (internet, software, equipo, publicidad).</p>`)}
+    ${step(5,'Envía y guarda el acuse',`<p>Revisa el resumen: el total debe ser de unos <b class="num">${f0(x.total)}</b>. Dale <b>Enviar</b> y descarga el <b>acuse</b>. Ahí viene tu <b>línea de captura</b>, la referencia para pagar.</p>`)}
+    ${step(6,'Paga',`<p>${late?'Lo antes posible':`Antes del <b>${fdateY(due)}</b>`}, paga en tu banca en línea en <b>"Pago de impuestos federales"</b> o <b>"Pago referenciado SAT"</b> con la línea de captura. Guarda el comprobante.</p>${x.total===0?'<p class="tip">Si sale $0, no pagas nada. Solo guarda el acuse.</p>':''}`)}
+   </ol>
+   <section class="card"><div class="row"><div><h3>¿Ya quedó?</h3><p class="small muted">Márcala para que en Inicio aparezca como presentada.</p></div>
+     <button class="${S.filed[k]?'':'primary'}" data-filed="${k}">${S.filed[k]?'Quitar "presentada"':'Ya la presenté'}</button></div></section>
   </div>`;
 }
 
 function stPill(r,C){
-  if(isOff(r))return '<span class="pill bad">Excluida</span>';
+  if(isOff(r))return '<span class="pill off">No cuenta</span>';
   if(r.tipo==='P')return '<span class="pill info">Complemento de pago</span>';
   if(r.tipo==='E')return '<span class="pill info">Nota de crédito</span>';
-  if(r.tipo==='I'&&r.metodo==='PPD'){const p=C.paid.get(r.uuid)||0;return p>=r.total-1?'<span class="pill ok">PPD pagada</span>':p>0?'<span class="pill warn">PPD pago parcial</span>':'<span class="pill warn">PPD sin cobrar</span>'}
-  return '<span class="pill ok">PUE cobrada</span>';
+  if(r.tipo==='I'&&r.metodo==='PPD'){const p=C.paid.get(r.uuid)||0;return p>=r.total-1?'<span class="pill ok">Ya te pagaron</span>':p>0?'<span class="pill warn">Te pagaron una parte</span>':'<span class="pill warn">Falta que te paguen</span>'}
+  return '<span class="pill ok">Cobrada</span>';
 }
 function vFacturas(){
   const C=compute(S.year);const em=S.facView==='emitidas';
   const inPeriod=r=>{const ds=[r.fecha,...r.pagos.map(p=>p.fecha)];return ds.some(d=>{const [y,m]=ym(d);return y===S.year&&(S.facAll||m===S.month)})};
   const list=S.records.filter(r=>role(r)===(em?'emitida':'recibida')&&inPeriod(r)).sort((a,b)=>a.fecha.localeCompare(b.fecha));
   const nE=S.records.filter(r=>role(r)==='emitida').length,nR=S.records.filter(r=>role(r)==='recibida').length;
+  const NAMES={deducible:'Cuenta (trabajo)',no:'No cuenta',personal:'Personal (anual)',inversion:'Equipo (cuenta)'};
   const body=list.map(r=>{
     const o=em?[r.receptorNombre,r.receptorRfc]:[r.emisorNombre,r.emisorRfc];const a=amounts(r);
     const paidAmt=r.tipo==='P'?r.pagos.reduce((s,p)=>s+p.monto*p.tc,0):0;
-    const who=`<div class="who"><span class="n" title="${esc(o[0])}">${esc(o[0]||'Sin nombre')}</span><span class="rfc">${esc(o[1])}</span></div>`;
-    const off=`<label class="small"><input type="checkbox" data-off="${esc(r.uuid)}" ${isOff(r)?'checked':''}> Excluir</label>`;
-    if(em) return `<tr class="${isOff(r)?'off':''}"><td class="num small">${r.fecha.slice(0,10)}</td><td>${who}<span class="small muted">${esc(r.desc)}</span></td><td class="r">${r.tipo==='P'?f(paidAmt):f(a.base)}</td><td class="r">${r.tipo==='P'?'—':f(a.iva)}</td><td class="r">${r.tipo==='P'?'—':f(a.isrRet)}</td><td class="r">${r.tipo==='P'?'—':f(a.ivaRet)}</td><td>${stPill(r,C)}</td><td>${off}</td></tr>`;
+    const who=`<div class="who"><span class="n" title="${esc(o[0])}">${esc(o[0]||'Sin nombre')}</span><span class="rfc">${esc(o[1])}</span><span class="small muted">${esc(r.desc)}</span></div>`;
+    const off=`<label class="small" style="white-space:nowrap"><input type="checkbox" data-off="${esc(r.uuid)}" ${isOff(r)?'checked':''}> No contar</label>`;
+    if(em) return `<tr class="${isOff(r)?'off':''}"><td class="small">${r.fecha.slice(0,10)}</td><td>${who}</td><td class="r">${r.tipo==='P'?f(paidAmt):f(a.base)}</td><td class="r">${r.tipo==='P'?'—':f(a.iva)}</td><td class="r">${r.tipo==='P'?'—':f(a.isrRet+a.ivaRet)}</td><td>${stPill(r,C)}</td><td>${off}</td></tr>`;
     const c=r.tipo==='I'||r.tipo==='E'?classify(r):null;const ov=S.over[r.uuid]?.cls||'auto';
-    const sel=c?`<select class="inline" data-cls="${esc(r.uuid)}" aria-label="Clasificación"><option value="auto" ${ov==='auto'?'selected':''}>Auto: ${({deducible:'Deducible',no:'No deducible',personal:'Personal',inversion:'Inversión'})[classify({...r,uuid:'_'}).cls]}</option><option value="deducible" ${ov==='deducible'?'selected':''}>Deducible</option><option value="inversion" ${ov==='inversion'?'selected':''}>Inversión</option><option value="personal" ${ov==='personal'?'selected':''}>Personal (anual)</option><option value="no" ${ov==='no'?'selected':''}>No deducible</option></select><div class="small muted" style="max-width:240px">${esc(c.reason)}</div>`:stPill(r,C);
-    return `<tr class="${isOff(r)?'off':''}"><td class="num small">${r.fecha.slice(0,10)}</td><td>${who}<span class="small muted">${esc(r.desc)}</span></td><td class="small">${esc(r.uso)} <span class="muted">${esc(USOS[r.uso]||'')}</span><br><span class="muted">${esc(FORMAS[r.forma]||r.forma)} · ${esc(r.metodo||'—')}</span></td><td class="r">${r.tipo==='P'?f(paidAmt):f(a.base)}</td><td class="r">${r.tipo==='P'?'—':f(a.iva)}</td><td>${sel}</td><td>${off}</td></tr>`;
+    const sel=c?`<select class="inline" data-cls="${esc(r.uuid)}" aria-label="¿Cuenta este gasto?"><option value="auto" ${ov==='auto'?'selected':''}>Auto: ${NAMES[classify({...r,uuid:'_'}).cls]}</option>${Object.entries(NAMES).map(([v,t])=>`<option value="${v}" ${ov===v?'selected':''}>${t}</option>`).join('')}</select><div class="small muted" style="max-width:230px">${esc(c.reason)}</div>`:stPill(r,C);
+    return `<tr class="${isOff(r)?'off':''}"><td class="small">${r.fecha.slice(0,10)}</td><td>${who}</td><td class="small">${esc(USOS[r.uso]||r.uso)}<br><span class="muted">${esc(FORMAS[r.forma]||r.forma)}</span></td><td class="r">${r.tipo==='P'?f(paidAmt):f(a.base)}</td><td class="r">${r.tipo==='P'?'—':f(a.iva)}</td><td>${sel}</td><td>${off}</td></tr>`;
   }).join('');
-  const head=em?'<th>Fecha</th><th>Cliente</th><th class="r">Subtotal</th><th class="r">IVA</th><th class="r">Ret. ISR</th><th class="r">Ret. IVA</th><th>Estado</th><th></th>':'<th>Fecha</th><th>Proveedor</th><th>Uso · forma de pago</th><th class="r">Subtotal</th><th class="r">IVA</th><th>Clasificación</th><th></th>';
+  const head=em?'<th>Fecha</th><th>Cliente</th><th class="r">Sin IVA</th><th class="r">IVA</th><th class="r">Te retuvieron</th><th>Estado</th><th></th>':'<th>Fecha</th><th>Proveedor</th><th>Tipo de gasto</th><th class="r">Sin IVA</th><th class="r">IVA</th><th>¿Cuenta?</th><th></th>';
   return `<div style="display:grid;gap:12px">
-   <div class="toolbar"><div class="seg"><button data-fv="emitidas" aria-pressed="${em}">Emitidas (${nE})</button><button data-fv="recibidas" aria-pressed="${!em}">Recibidas (${nR})</button></div>
+   <div class="row"><div class="seg"><button data-fv="emitidas" aria-pressed="${em}">Lo que cobré (${nE})</button><button data-fv="recibidas" aria-pressed="${!em}">Lo que gasté (${nR})</button></div>
    <div class="seg"><button data-fa="0" aria-pressed="${!S.facAll}">${MESES[S.month]}</button><button data-fa="1" aria-pressed="${S.facAll}">Todo ${S.year}</button></div></div>
-   <div class="tablebox"><table><thead><tr>${head}</tr></thead><tbody>${body||`<tr><td colspan="8" class="muted">No hay facturas ${em?'emitidas':'recibidas'} en este periodo.</td></tr>`}</tbody></table></div>
-   <p class="small muted">Marca "Excluir" en facturas canceladas. En gastos puedes corregir la clasificación si la automática no aplica a tu caso.</p></div>`;
+   <div class="tablebox"><table><thead><tr>${head}</tr></thead><tbody>${body||`<tr><td colspan="7" class="muted">No hay facturas aquí en este periodo.</td></tr>`}</tbody></table></div>
+   <p class="small muted">"No contar" es para facturas canceladas. En tus gastos puedes cambiar si cuentan o no.</p></div>`;
 }
 
-function vRegimen(){
-  const C=compute(S.year);const ing=C.tot('ing'),ded=C.tot('ded'),months=C.M.slice(1).filter(x=>x.nEm||x.nRe).length||1;
-  const resico=ing*resicoRate(ing,RESICO_A);const util=Math.max(0,ing-ded);const ae=tarifa(util,12);
-  const best=resico<=ae?'626':'612';const mx=Math.max(resico,ae,1);
-  const cur=regimen();
-  return `<div style="display:grid;gap:14px">
-   <div class="panel"><h2>RESICO o Actividades Empresariales y Profesionales</h2>
-    <p class="muted small">Con tus ${months} mes(es) cargados de ${S.year}: ingresos cobrados de ${f0(ing)} y gastos deducibles de ${f0(ded)}. ISR del año en cada régimen, antes de retenciones:</p>
-    <div class="two">
-     <div class="kpi ${best==='626'?'hl':''}"><span class="label">RESICO (626)</span><span class="v">${f0(resico)}</span><div class="bar"><i style="width:${resico/mx*100}%"></i></div><span class="sub">Tasa anual ${(resicoRate(ing,RESICO_A)*100).toFixed(2)}% sobre ingresos. Tus gastos no se restan.</span>${best==='626'?'<span class="pill ok">Pagas menos</span>':''}</div>
-     <div class="kpi ${best==='612'?'hl':''}"><span class="label">Act. Empresariales y Profesionales (612)</span><span class="v">${f0(ae)}</span><div class="bar alt"><i style="width:${ae/mx*100}%"></i></div><span class="sub">Tarifa progresiva hasta 35% sobre la utilidad de ${f0(util)}. Aquí sí restas gastos.</span>${best==='612'?'<span class="pill ok">Pagas menos</span>':''}</div>
-    </div>
-    <p>${best==='626'?`Con estos números, RESICO te ahorra unos <b>${f0(ae-resico)}</b> al año.`:`Con estos números, Actividades Empresariales te ahorra unos <b>${f0(resico-ae)}</b> al año, porque tus gastos son altos.`} Hoy calculas como <b>${REGIMENES[cur]}</b>.</p>
-   </div>
-   <div class="panel"><h3>Antes de cambiar de régimen</h3><ul class="plain small">
-    <li>Tu régimen real es el de tu Constancia de Situación Fiscal (sat.gob.mx → Genera tu Constancia). La app lo detecta del campo RegimenFiscal de tus facturas.</li>
-    <li>RESICO es para ingresos de hasta $3,500,000 al año. No puedes estar en RESICO si eres socio de una empresa o si ya recibes ingresos en ciertos regímenes; revisa los requisitos vigentes.</li>
-    <li>En RESICO las empresas te retienen 1.25% de ISR; en honorarios (612) te retienen 10%. En ambos el IVA es igual.</li>
-    <li>El cambio se hace en el portal del SAT con el trámite de actualización de actividades y obligaciones, normalmente al inicio del año. Si dudas, consulta a un contador una sola vez para este paso.</li>
-    <li>La comparación no incluye deducciones personales, depreciación de inversiones ni pérdidas de años anteriores, que favorecen al régimen 612.</li>
-   </ul></div></div>`;
-}
-
-function vAyuda(){return `<div style="display:grid;gap:14px">
- <div class="panel"><h2>Descarga tus XML del SAT</h2><ol class="how">
-  <li>Entra a <a href="https://portalcfdi.facturaelectronica.sat.gob.mx/" target="_blank" rel="noopener">portalcfdi.facturaelectronica.sat.gob.mx</a> con tu e.firma o contraseña.</li>
-  <li>Elige <b>Consultar facturas emitidas</b>, filtra por mes y descarga todas (bajan en ZIP).</li>
-  <li>Repite con <b>Consultar facturas recibidas</b>. Incluye los complementos de pago.</li>
-  <li>Arrastra los ZIP aquí o usa <b>Elegir archivos</b>. Puedes cargar varios meses; las repetidas se ignoran.</li>
-  <li>En esa misma consulta del SAT revisa la columna de estado: si alguna está <b>cancelada</b>, márcala como Excluir en la pestaña Facturas.</li>
- </ol></div>
- <div class="panel"><h2>Tu mes, paso a paso</h2><ol class="how">
-  <li>Del 1 al 10 de cada mes: descarga y carga las facturas del mes anterior.</li>
-  <li>Revisa la sección <b>Revisión de tus facturas</b> en Resumen y corrige lo que marque.</li>
-  <li>Abre <b>Declaración del mes</b> y captura los valores en el portal del SAT.</li>
-  <li>Paga antes del día 17 y guarda el acuse.</li>
-  <li>En abril presenta tu declaración anual con tus deducciones personales.</li>
- </ol></div>
- <div class="panel"><h2>Qué hace y qué no hace esta app</h2><ul class="plain">
-  <li>Calcula con el método de flujo de efectivo: cuenta lo cobrado y pagado en el mes. Las facturas PUE cuentan en su fecha; las PPD, cuando hay complemento de pago.</li>
-  <li>Convierte facturas en dólares u otras monedas con el tipo de cambio del XML.</li>
-  <li>No timbra facturas ni presenta declaraciones; eso lo haces tú en el portal del SAT.</li>
-  <li>Tus datos se guardan solo en este navegador. Si borras los datos del sitio o cambias de equipo, vuelve a cargar tus XML.</li>
-  <li>Las tarifas cambian cuando la inflación acumulada supera 10%. Revisa cada enero el Anexo 8 de la Resolución Miscelánea Fiscal.</li>
- </ul></div></div>`}
+function vAyuda(){const d=detectReg();return `<div style="display:grid;gap:14px">
+ <section class="card"><h2>Cómo bajar tus facturas del SAT</h2><ol class="how">
+  <li>Entra a <a href="https://portalcfdi.facturaelectronica.sat.gob.mx/" target="_blank" rel="noopener">portalcfdi.facturaelectronica.sat.gob.mx</a> con tu contraseña o e.firma.</li>
+  <li>Elige <b>Consultar facturas emitidas</b>, pon las fechas del mes y descarga todas. Bajan en un ZIP.</li>
+  <li>Haz lo mismo en <b>Consultar facturas recibidas</b>.</li>
+  <li>Súbelos aquí con <b>Elegir archivos</b>. Puedes subir varios meses; las repetidas se ignoran solas.</li>
+  <li>En esa misma lista del SAT fíjate si alguna dice <b>Cancelado</b> y márcala con "No contar".</li>
+ </ol></section>
+ <section class="card"><h2>¿Me falta alguna declaración?</h2><p>Busca en sat.gob.mx <b>"Opinión del cumplimiento de obligaciones fiscales"</b>. Si sale <b>positiva</b>, vas al corriente. Si sale <b>negativa</b>, te dice qué meses faltan; hazlos de la más vieja a la más nueva en la pestaña Declarar.</p></section>
+ <section class="card"><h2>Palabras del SAT, en fácil</h2><dl class="glos">
+  <div><dt>RESICO</dt><dd>Tu régimen. Pagas de 1% a 2.5% de lo que cobras y casi todo viene precargado.</dd></div>
+  <div><dt>CFDI</dt><dd>Factura electrónica. El XML es el archivo de la factura.</dd></div>
+  <div><dt>ISR</dt><dd>Impuesto por lo que ganas.</dd></div>
+  <div><dt>IVA</dt><dd>El 16% que le cobras a tus clientes. Le restas el IVA de lo que gastas para tu trabajo y pagas la diferencia.</dd></div>
+  <div><dt>Retención</dt><dd>Cuando una empresa te paga, se queda con un poquito de impuesto y lo paga al SAT por ti. Por eso al final pagas menos.</dd></div>
+  <div><dt>PUE y PPD</dt><dd>PUE: te pagaron todo de una vez. PPD: te pagan después o en partes, y cuando te pagan haces un "complemento de pago".</dd></div>
+  <div><dt>Línea de captura</dt><dd>La referencia que te da el SAT para pagar en el banco.</dd></div>
+  <div><dt>Acuse</dt><dd>El comprobante de que presentaste tu declaración. Guárdalo siempre.</dd></div>
+ </dl></section>
+ <section class="card"><h2>Tus fechas importantes</h2><ul class="plain">
+  <li><b>Cada mes:</b> declaración de ISR e IVA a más tardar el día 17 del mes siguiente.</li>
+  <li><b>Cada año:</b> declaración anual a más tardar el 30 de abril.</li>
+ </ul></section>
+ <section class="card"><details class="set"><summary>Ajustes</summary>
+  <div class="picker"><label class="small" for="f-rfc">Tu RFC</label><input type="text" id="f-rfc" maxlength="13" value="${esc(S.rfc)}" style="text-transform:uppercase">
+  <label class="small" for="f-reg">Régimen</label><select id="f-reg"><option value="auto" ${S.reg==='auto'?'selected':''}>Automático${d?': '+(REGIMENES[d]||d):''}</option><option value="626" ${S.reg==='626'?'selected':''}>RESICO</option><option value="612" ${S.reg==='612'?'selected':''}>Actividades Empresariales y Profesionales</option></select></div>
+  <p class="small muted" style="margin-top:8px">Tus datos viven solo en este navegador. Si cambias de celular o borras los datos del sitio, vuelve a subir tus facturas.</p>
+ </details></section>
+</div>`}
 
 function render(){
-  renderControls();
-  const v={resumen:vResumen,declaracion:vDeclaracion,facturas:vFacturas,regimen:vRegimen,ayuda:vAyuda}[S.tab]||vResumen;
+  const n=myName();
+  $('#hello').textContent=S.sample?'Hola (modo ejemplo)':n?`Hola, ${cap(n.split(' ')[0])}`:'Hola';
+  $('#f-year').innerHTML=years().map(y=>`<option>${y}</option>`).join('');$('#f-year').value=S.year;
+  $('#f-month').innerHTML=MESES.slice(1).map((m,i)=>`<option value="${i+1}">${m}</option>`).join('');$('#f-month').value=S.month;
+  $('#sampleBanner').hidden=!S.sample;$('#clear').hidden=S.sample;
+  document.querySelectorAll('#tabs button').forEach(b=>b.setAttribute('aria-selected',b.dataset.tab===S.tab));
+  const v={inicio:vInicio,declarar:vDeclarar,facturas:vFacturas,ayuda:vAyuda}[S.tab]||vInicio;
   $('#view').innerHTML=v();
 }
 
-/* ================= Eventos ================= */
 $('#pick').onclick=()=>$('#file').click();
 $('#file').onchange=e=>{ingest([...e.target.files]);e.target.value=''};
 const dz=$('#drop');
@@ -564,27 +582,29 @@ const dz=$('#drop');
 ['dragleave','drop'].forEach(t=>document.addEventListener(t,e=>{e.preventDefault();if(t==='drop'||e.target===document.documentElement)dz.classList.remove('over')}));
 document.addEventListener('drop',e=>{const fs=[...(e.dataTransfer?.files||[])];if(fs.length)ingest(fs)});
 let clearArm=0;
-$('#clear').onclick=e=>{const b=e.currentTarget;if(Date.now()-clearArm<4000){try{localStorage.removeItem(KEY)}catch(_){}S={...S,records:[],over:{},rfc:'',reg:'auto'};boot(true);toast('Datos borrados');b.textContent='Borrar todo';b.classList.remove('danger');return}
-  clearArm=Date.now();b.textContent='Toca de nuevo para borrar';b.classList.add('danger');setTimeout(()=>{b.textContent='Borrar todo';b.classList.remove('danger')},4000)};
-$('#f-rfc').onchange=e=>{S.rfc=e.target.value.trim().toUpperCase();save();render()};
-$('#f-reg').onchange=e=>{S.reg=e.target.value;save();render()};
+$('#clear').onclick=e=>{const b=e.currentTarget;if(Date.now()-clearArm<4000){try{localStorage.removeItem(KEY)}catch(_){}boot(true);toast('Listo, borré todo');b.textContent='Borrar todo';return}
+  clearArm=Date.now();b.textContent='Toca otra vez para borrar';setTimeout(()=>{b.textContent='Borrar todo'},4000)};
 $('#f-year').onchange=e=>{S.year=+e.target.value;save();render()};
 $('#f-month').onchange=e=>{S.month=+e.target.value;save();render()};
 $('#tabs').onclick=e=>{const b=e.target.closest('button[data-tab]');if(!b)return;S.tab=b.dataset.tab;save();render()};
 $('#view').addEventListener('click',e=>{
-  const tr=e.target.closest('tr[data-m]');if(tr){S.month=+tr.dataset.m;save();render();return}
-  const cp=e.target.closest('[data-copy]');if(cp){const t=cp.dataset.copy;const done=()=>{cp.textContent='Copiado';setTimeout(()=>cp.textContent='Copiar',1500)};
-    try{navigator.clipboard.writeText(t).then(done,()=>{toast('Copia manual: '+t)})}catch(_){toast('Copia manual: '+t)}return}
+  const mt=e.target.closest('[data-m]');if(mt){S.month=+mt.dataset.m;save();render();return}
+  const go=e.target.closest('[data-go]');if(go){S.tab=go.dataset.go;save();render();window.scrollTo({top:$('#tabs').offsetTop-10,behavior:'smooth'});return}
+  const cp=e.target.closest('[data-copy]');if(cp){const t=cp.dataset.copy;const done=()=>{cp.textContent='¡Copiado!';setTimeout(()=>cp.textContent='Copiar',1500)};
+    try{navigator.clipboard.writeText(t).then(done,()=>toast('Escríbelo a mano: '+t))}catch(_){toast('Escríbelo a mano: '+t)}return}
+  const st=e.target.closest('[data-step]');if(st){const k=mkey(S.year,S.month);const d={...(S.stepsDone[k]||{})};d[st.dataset.step]=!d[st.dataset.step];S.stepsDone={...S.stepsDone,[k]:d};save();render();return}
+  const fl=e.target.closest('[data-filed]');if(fl){const k=fl.dataset.filed;S.filed={...S.filed,[k]:!S.filed[k]};save();render();if(S.filed[k])toast('¡Bien hecho! Una menos');return}
   const fv=e.target.closest('[data-fv]');if(fv){S.facView=fv.dataset.fv;save();render();return}
   const fa=e.target.closest('[data-fa]');if(fa){S.facAll=fa.dataset.fa==='1';save();render();return}
 });
 $('#view').addEventListener('change',e=>{
+  if(e.target.id==='f-rfc'){S.rfc=e.target.value.trim().toUpperCase();save();render();return}
+  if(e.target.id==='f-reg'){S.reg=e.target.value;save();render();return}
   const off=e.target.closest('[data-off]');if(off){const u=off.dataset.off;S.over[u]={...(S.over[u]||{}),off:off.checked};save();render();return}
   const cl=e.target.closest('[data-cls]');if(cl){const u=cl.dataset.cls;S.over[u]={...(S.over[u]||{}),cls:cl.value==='auto'?undefined:cl.value};save();render()}
 });
-
 function boot(reset){
-  if(reset||!load()){const s=sampleData();S.records=s.recs;S.rfc=s.me;S.sample=true;S.over={};S.reg='auto';S.year=null;S.month=null}
+  if(reset||!load()){const s=sampleData();S={...S,records:s.recs,rfc:s.me,sample:true,over:{},filed:{},stepsDone:{},reg:'auto',year:null,month:null}}
   pickDefaults(!S.year);render();
 }
 boot(false);
