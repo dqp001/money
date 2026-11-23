@@ -772,7 +772,7 @@ $('#view').addEventListener('click',e=>{
     g.ahorrado+=v;S.money.movs.push({id:uid(),tipo:'gasto',monto:v,cat:'ahorro',desc:'Ahorro: '+g.nombre,fecha:todayStr(),factura:false});save();render();toast(g.ahorrado>=g.meta?'¡Meta cumplida! Eres lo máximo':'¡Bien! Un pasito más');return}
   const pg=e.target.closest('[data-pagar]');if(pg){const d=S.money.debts.find(x=>x.id===pg.dataset.pagar);const v=+($('#pg-'+d.id)?.value||0);if(!(v>0)){toast('Escribe cuánto pagaste');return}
     d.saldo=Math.max(0,d.saldo-v);S.money.movs.push({id:uid(),tipo:'gasto',monto:v,cat:'deuda',desc:'Pago: '+d.nombre,fecha:todayStr(),factura:false,debtId:d.id});save();render();toast(d.saldo<=0?'¡Deuda pagada por completo!':'Pago registrado');return}
-  if(e.target.closest('[data-backup]')){try{const blob=new Blob([JSON.stringify({app:'mi-contador',v:2,rfc:S.rfc,reg:S.reg,uma:S.uma,records:S.sample?[]:S.records,over:S.over,filed:S.filed,money:S.money})],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`mi-contador-copia-${todayStr()}.json`;document.body.appendChild(a);a.click();a.remove();toast('Copia descargada')}catch(_){toast('Tu navegador no dejó descargar la copia')}return}
+  if(e.target.closest('[data-backup]')){backup();return}
   if(e.target.closest('[data-restore]')){$('#restoreFile')?.click();return}
   const cp=e.target.closest('[data-copy]');if(cp){const t=cp.dataset.copy;const done=()=>{cp.textContent='¡Copiado!';setTimeout(()=>cp.textContent='Copiar',1500)};
     try{navigator.clipboard.writeText(t).then(done,()=>toast('Escríbelo a mano: '+t))}catch(_){toast('Escríbelo a mano: '+t)}return}
@@ -803,6 +803,13 @@ $('#view').addEventListener('change',e=>{
   const off=e.target.closest('[data-off]');if(off){const u=off.dataset.off;S.over[u]={...(S.over[u]||{}),off:off.checked};save();render();return}
   const cl=e.target.closest('[data-cls]');if(cl){const u=cl.dataset.cls;S.over[u]={...(S.over[u]||{}),cls:cl.value==='auto'?undefined:cl.value};save();render()}
 });
+async function backup(){
+  const data=JSON.stringify({app:'mi-contador',v:2,rfc:S.rfc,reg:S.reg,uma:S.uma,records:S.sample?[]:S.records,over:S.over,filed:S.filed,money:S.money});
+  const filename=`mi-contador-copia-${todayStr()}.json`;
+  if(window.claude&&window.claude.use){const dl=await window.claude.use('downloads');
+    if(dl){try{await dl.save({filename,data});toast('Copia guardada')}catch(_){toast('No se guardó la copia')}return}}
+  try{const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));a.download=filename;document.body.appendChild(a);a.click();a.remove();toast('Copia descargada')}catch(_){toast('Tu navegador no dejó descargar la copia')}
+}
 function loadSample(){const s=sampleData();S.records=s.recs;S.rfc=s.me;S.sample=true;S.over={};S.reg='auto'}
 function boot(){
   let s=null;try{s=JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){}
