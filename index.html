@@ -438,12 +438,9 @@ function sampleData(){
 function years(){const s=new Set([new Date().getFullYear()]);(S.money?.movs||[]).forEach(x=>{const y=ym(x.fecha)[0];if(y)s.add(y)});S.records.forEach(r=>{const y=ym(r.fecha)[0];if(y)s.add(y);r.pagos.forEach(p=>{const y2=ym(p.fecha)[0];if(y2)s.add(y2)})});return [...s].sort((a,b)=>b-a)}
 function pickDefaults(force){
   const now=new Date();
-  if(force||!S.year){const ys=years().filter(y=>S.records.some(r=>ym(r.fecha)[0]===y));S.year=ys.includes(now.getFullYear())?now.getFullYear():(ys[0]||now.getFullYear())}
+  if(force||!S.year){S.year=now.getFullYear()}
   if(force||!S.month){
-    let m=S.year===now.getFullYear()?Math.max(1,now.getMonth()):12;
-    const ms=S.records.filter(r=>ym(r.fecha)[0]===S.year).map(r=>ym(r.fecha)[1]);
-    if(ms.length&&!ms.includes(m)) m=Math.min(m,Math.max(...ms));
-    S.month=m;
+    S.month=S.year===now.getFullYear()?now.getMonth()+1:12;
   }
 }
 
@@ -752,10 +749,10 @@ function vSatPagos(always){
   const fd=v=>{const [y,m,d]=v.split('-');return `${+d} ${MESES[+m].slice(0,3).toLowerCase()}`};
   return `<section class="card"><div class="row"><h2>Pagos al SAT</h2>${pend.length?`<span class="pill bad">Debes ${f0(tot)}</span>`:'<span class="pill ok">Todo pagado</span>'}</div>
    ${pend.length?`<ul class="list">${pend.map(x=>{const dias=Math.ceil((new Date(x.vence+'T23:59:59')-new Date())/864e5);const pill=dias<0?'<span class="pill bad">Vencida: saca otra línea</span>':dias<=2?`<span class="pill bad">Vence ${dias===0?'hoy':dias===1?'mañana':'en 2 días'}</span>`:`<span class="pill warn">Vence ${fd(x.vence)}</span>`;
-     return `<li class="goal"><div class="row"><b>${esc(x.concepto)}</b><span class="num" style="font-family:var(--f-display);font-weight:700;font-size:1.15rem">${f0(x.monto)}</span></div>
+     return `<li class="goal"><div class="row"><b>Declaración de ${esc(x.concepto.toLowerCase())}</b><span class="num" style="font-family:var(--f-display);font-weight:700;font-size:1.15rem">${f0(x.monto)}</span></div>
        <div class="row small"><span class="muted num">Línea: <b style="color:var(--ink)">${esc(x.linea)}</b></span>${pill}</div>
        <div class="fr"><button class="soft copy" data-copy="${esc((x.linea||'').replace(/\s/g,''))}" style="flex:0 0 auto">Copiar línea</button><button class="primary" data-pagado="${esc(x.id)}" style="flex:0 0 auto">Ya lo pagué</button></div></li>`}).join('')}</ul>`:''}
-   ${pag.length?`<details><summary class="small muted" style="cursor:pointer;font-weight:800">Pagados (${pag.length}) · ${f0(pag.reduce((s,x)=>s+x.monto,0))}</summary><ul class="list" style="margin-top:8px">${pag.map(x=>`<li class="mv"><div class="d"><b>${esc(x.concepto)}</b><span class="small muted">Pagado ${x.fechaPago?fd(x.fechaPago):''}</span></div><span class="amt num out">${f0(x.monto)}</span><span class="pill ok">✓</span></li>`).join('')}</ul></details>`:''}
+   ${pag.length?`<details><summary class="small muted" style="cursor:pointer;font-weight:800">Pagados (${pag.length}) · ${f0(pag.reduce((s,x)=>s+x.monto,0))}</summary><ul class="list" style="margin-top:8px">${pag.map(x=>`<li class="mv"><div class="d"><b>Declaración de ${esc(x.concepto.toLowerCase())}</b><span class="small muted">Pagado ${x.fechaPago?fd(x.fechaPago):''}</span></div><span class="amt num out">${f0(x.monto)}</span><span class="pill ok">✓</span></li>`).join('')}</ul></details>`:''}
    <p class="hint">Paga en tu banca en línea: Pagos → Impuestos → Pago referenciado SAT, con la línea sin espacios y el monto exacto.</p></section>`;
 }
 function vSat(){
@@ -839,7 +836,7 @@ function boot(){
   if(!TABS.includes(S.tab))S.tab='inicio';
   S.satPagos=Array.isArray(S.satPagos)?S.satPagos:[];
   if(hasOwn()){S.sample=false;if(s&&s.sample)S.records=[]}else if(!S.records||!S.records.length||(s&&s.sample)||!s)loadSample();else S.sample=false;
-  pickDefaults(!S.year);render();
+  pickDefaults(true);render();
 }
 boot();
 </script>
