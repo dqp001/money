@@ -253,8 +253,9 @@ function tarifa(base,n){if(base<=0)return 0;let row=TARIFA[0];for(const r of TAR
 
 const KEY='micontador.v1';
 const TABS=['inicio','movs','metas','sat','ayuda'];
-let S={records:[],rfc:'',reg:'auto',year:null,month:null,tab:'inicio',sub:'resumen',movTipo:'gasto',over:{},sample:true,facView:'emitidas',facAll:false,filed:{},stepsDone:{},uma:113.14,money:{movs:[],debts:[],goals:[]}};
-function save(){try{localStorage.setItem(KEY,JSON.stringify(S.sample?{...S,records:[],over:{},filed:{},stepsDone:{}}:S))}catch(e){}}
+let S={records:[],rfc:'',reg:'auto',year:null,month:null,tab:'inicio',sub:'resumen',movTipo:'gasto',over:{},sample:true,facView:'emitidas',facAll:false,filed:{},stepsDone:{},uma:113.14,money:{movs:[],debts:[],goals:[]},satPagos:[]};
+function hasOwn(){const m=S.money||{};return !!((m.movs&&m.movs.length)||(m.debts&&m.debts.length)||(m.goals&&m.goals.length)||Object.keys(S.filed||{}).length||(S.satPagos&&S.satPagos.length))}
+function save(){if(S.sample&&hasOwn()){S.sample=false;S.records=[];S.over={};S.rfc=S.rfc&&S.rfc!=='MOLA900215K39'?S.rfc:''}try{localStorage.setItem(KEY,JSON.stringify(S.sample?{...S,records:[],over:{},filed:{},stepsDone:{}}:S))}catch(e){}}
 
 const $=s=>document.querySelector(s);
 const money=new Intl.NumberFormat('es-MX',{style:'currency',currency:'MXN'});
@@ -471,6 +472,7 @@ function checks(C){
 }
 
 function vSatResumen(){
+  if(!S.records.length&&!S.sample)return `<div style="display:grid;gap:18px">${vSatPagos(true)}<section class="card"><h2>Tus facturas</h2><div class="empty"><b>Todavía no subes tus facturas</b>Descarga del portal del SAT tus facturas emitidas y recibidas (ZIP) y súbelas arriba. Con eso calculo cada mes solo.</div></section>${vRegalos(S.year)}</div>`;
   const C=compute(S.year),x=C.M[S.month],due=venc(S.year,S.month),st=monthStatus(S.year,S.month);
   const tiles=[];for(let m=1;m<=12;m++){const y=C.M[m];const s=monthStatus(S.year,m);const has=y.nEm||y.nRe;
     tiles.push(`<button class="month ${m===S.month?'sel':''}" data-m="${m}"><b>${MESES[m]}</b><span class="v num">${has?'Pagar '+f0(y.total):'Sin facturas'}</span><span class="pill ${s.cls}">${s.txt}</span></button>`)}
@@ -612,7 +614,7 @@ function render(){
 
 /* ================= Mi dinero ================= */
 const CAT_IN={trabajo:'Trabajo (publicidad)',papas:'Regalo de mis papás',regalo:'Regalo de otra persona',traspaso:'Traspaso entre mis cuentas',otro_in:'Otra entrada'};
-const CAT_OUT={trabajo_g:'Gasto de mi trabajo',comida:'Comida',casa:'Casa y servicios',transporte:'Transporte',ropa:'Ropa y belleza',diversion:'Salidas y diversión',salud:'Salud',escuela:'Escuela',suscripciones:'Suscripciones',deuda:'Pago de deuda',ahorro:'Ahorro para metas',traspaso_g:'Traspaso entre mis cuentas',otro_out:'Otro gasto'};
+const CAT_OUT={trabajo_g:'Gasto de mi trabajo',comida:'Comida',casa:'Casa y servicios',transporte:'Transporte',ropa:'Ropa y belleza',diversion:'Salidas y diversión',salud:'Salud',escuela:'Escuela',suscripciones:'Suscripciones',deuda:'Pago de deuda',impuestos:'Impuestos SAT',ahorro:'Ahorro para metas',traspaso_g:'Traspaso entre mis cuentas',otro_out:'Otro gasto'};
 const CATS={...CAT_IN,...CAT_OUT};
 const FACT_CATS=new Set(['trabajo','trabajo_g','salud','escuela']);
 const BARC=['var(--pink)','var(--lilac)','var(--mint)','var(--sun)','var(--pink-deep)','var(--lilac-deep)','var(--mint-deep)','var(--sun-deep)'];
@@ -628,7 +630,7 @@ function paidThisMonth(d){const n=new Date();return S.money.movs.some(x=>x.debtI
 
 function moneyChecks(y){
   const out=[];const L=movsOf(y);const add=(l,t)=>out.push([l,t]);
-  const tsf=L.filter(x=>x.cat==='trabajo'&&!x.factura);
+  const tsf=L.filter(x=>x.cat==='trabajo'&&!x.factura&&!x.declarado);
   if(tsf.length)add('warn',`Registraste ${f0(tsf.reduce((s,x)=>s+x.monto,0))} de trabajo sin factura en ${y}. Ese dinero también paga impuestos: hazle factura a tu cliente (o al público en general) para que entre en tu declaración.`);
   const otros=L.filter(x=>x.cat==='regalo').reduce((s,x)=>s+x.monto,0),pap=L.filter(x=>x.cat==='papas').reduce((s,x)=>s+x.monto,0),lim=umaLimit();
   if(otros>lim)add('bad',`Los regalos de otras personas (${f0(otros)}) pasan el límite libre de impuestos (${f0(lim)}). Lo que se pasa (${f0(otros-lim)}) se declara en tu anual como "otros ingresos".`);
@@ -658,9 +660,10 @@ function vHome(){
        <div class="part"><span class="lbl">Te queda</span><span class="v num">${f0(queda)}</span></div>
      </div>
      <div class="part"><div class="row"><span class="lbl">Aparta para el SAT</span><span class="pill ${st.cls}">${st.txt}</span></div>
-       <span class="v num">${f0(x.total)}</span><span class="small muted">ISR ${f0(x.isrPagar)} + IVA ${f0(x.ivaPagar)} de tu declaración de ${MESES[m].toLowerCase()}, según tus facturas. ${queda>0?`Después de apartarlo te quedan <b>${f0(queda-x.total)}</b>.`:''}</span>
+       ${!S.records.length&&!S.sample?`<span class="small muted">Sube tus facturas del SAT (ZIP) y aquí te digo cuánto apartar de cada mes.</span>`:`<span class="v num">${f0(x.total)}</span><span class="small muted">ISR ${f0(x.isrPagar)} + IVA ${f0(x.ivaPagar)} de tu declaración de ${MESES[m].toLowerCase()}, según tus facturas. ${queda>0?`Después de apartarlo te quedan <b>${f0(queda-x.total)}</b>.`:''}</span>`}
        <div><button data-gotab="sat">Ver mi SAT</button></div></div>
    </section>
+   ${vSatPagos()}
    <section class="card"><h2>Lo que tu contador nota</h2>
      ${alerts.length?`<ul class="checks">${alerts.map(([l,t])=>`<li><span class="dotc ${l}">${l==='bad'?'!':l==='warn'?'?':'i'}</span><p>${t}</p></li>`).join('')}</ul>`:'<p class="muted">Todo en orden por ahora. Sigue anotando tus movimientos.</p>'}</section>
    <div class="two">
@@ -690,7 +693,7 @@ function vMovs(){
     </form></section>
    ${cs.length?`<section class="card"><h2>En qué se fue tu dinero</h2><div class="bars">${cs.map(([c,v],i)=>`<div class="barrow"><span>${esc(CATS[c]||c)}</span>${bar(v/max,BARC[i%BARC.length])}<span class="num">${f0(v)}</span></div>`).join('')}</div></section>`:''}
    <section class="card"><div class="row"><h2>Movimientos de ${MESES[m]}</h2><span class="small muted">Entró <b class="in">${f0(sumMov(L,'entrada'))}</b> · Salió <b class="out">${f0(sumMov(L,'gasto'))}</b></span></div>
-    ${L.length?`<ul class="list">${L.map(x=>`<li class="mv"><div class="d"><b>${esc(x.desc||CATS[x.cat]||'Movimiento')}</b><span class="small muted">${x.fecha.slice(8,10)}/${x.fecha.slice(5,7)} · ${esc(CATS[x.cat]||x.cat)}${FACT_CATS.has(x.cat)?(x.factura?' · con factura':' · sin factura'):''}</span></div><span class="amt num ${x.tipo==='entrada'?'in':'out'}">${x.tipo==='entrada'?'+':'−'}${f0(x.monto)}</span><button class="x" data-delmov="${esc(x.id)}" aria-label="Borrar movimiento">×</button></li>`).join('')}</ul>`:'<div class="empty"><b>Nada anotado este mes</b>Anota arriba lo que te entra y lo que gastas. Así tu contador sabe cómo vas.</div>'}
+    ${L.length?`<ul class="list">${L.map(x=>`<li class="mv"><div class="d"><b>${esc(x.desc||CATS[x.cat]||'Movimiento')}</b><span class="small muted">${x.fecha.slice(8,10)}/${x.fecha.slice(5,7)} · ${esc(CATS[x.cat]||x.cat)}${FACT_CATS.has(x.cat)?(x.factura?' · con factura':x.declarado?' · ya declarado':' · sin factura'):''}</span></div><span class="amt num ${x.tipo==='entrada'?'in':'out'}">${x.tipo==='entrada'?'+':'−'}${f0(x.monto)}</span><button class="x" data-delmov="${esc(x.id)}" aria-label="Borrar movimiento">×</button></li>`).join('')}</ul>`:'<div class="empty"><b>Nada anotado este mes</b>Anota arriba lo que te entra y lo que gastas. Así tu contador sabe cómo vas.</div>'}
    </section></div>`;
 }
 function syncCat(){const c=$('#mv-cat');if(!c)return;$('#mv-hint').textContent=catHint(c.value);$('#mv-factwrap').hidden=!FACT_CATS.has(c.value)}
@@ -741,6 +744,20 @@ function vRegalos(y){
    </div></section>`;
 }
 
+function vSatPagos(always){
+  const L=(S.satPagos||[]).slice().sort((a,b)=>(a.vence||'').localeCompare(b.vence||''));
+  const pend=L.filter(x=>!x.pagado),pag=L.filter(x=>x.pagado);
+  if(!L.length)return always?'<section class="card"><h2>Pagos al SAT</h2><div class="empty"><b>Sin pagos pendientes</b>Cuando presentes una declaración con pago, aquí aparecerá con su línea de captura.</div></section>':'';
+  const tot=pend.reduce((s,x)=>s+x.monto,0),hoy=todayStr();
+  const fd=v=>{const [y,m,d]=v.split('-');return `${+d} ${MESES[+m].slice(0,3).toLowerCase()}`};
+  return `<section class="card"><div class="row"><h2>Pagos al SAT</h2>${pend.length?`<span class="pill bad">Debes ${f0(tot)}</span>`:'<span class="pill ok">Todo pagado</span>'}</div>
+   ${pend.length?`<ul class="list">${pend.map(x=>{const dias=Math.ceil((new Date(x.vence+'T23:59:59')-new Date())/864e5);const pill=dias<0?'<span class="pill bad">Vencida: saca otra línea</span>':dias<=2?`<span class="pill bad">Vence ${dias===0?'hoy':dias===1?'mañana':'en 2 días'}</span>`:`<span class="pill warn">Vence ${fd(x.vence)}</span>`;
+     return `<li class="goal"><div class="row"><b>${esc(x.concepto)}</b><span class="num" style="font-family:var(--f-display);font-weight:700;font-size:1.15rem">${f0(x.monto)}</span></div>
+       <div class="row small"><span class="muted num">Línea: <b style="color:var(--ink)">${esc(x.linea)}</b></span>${pill}</div>
+       <div class="fr"><button class="soft copy" data-copy="${esc((x.linea||'').replace(/\s/g,''))}" style="flex:0 0 auto">Copiar línea</button><button class="primary" data-pagado="${esc(x.id)}" style="flex:0 0 auto">Ya lo pagué</button></div></li>`}).join('')}</ul>`:''}
+   ${pag.length?`<details><summary class="small muted" style="cursor:pointer;font-weight:800">Pagados (${pag.length}) · ${f0(pag.reduce((s,x)=>s+x.monto,0))}</summary><ul class="list" style="margin-top:8px">${pag.map(x=>`<li class="mv"><div class="d"><b>${esc(x.concepto)}</b><span class="small muted">Pagado ${x.fechaPago?fd(x.fechaPago):''}</span></div><span class="amt num out">${f0(x.monto)}</span><span class="pill ok">✓</span></li>`).join('')}</ul></details>`:''}
+   <p class="hint">Paga en tu banca en línea: Pagos → Impuestos → Pago referenciado SAT, con la línea sin espacios y el monto exacto.</p></section>`;
+}
 function vSat(){
   const sub=S.sub||'resumen';
   const body=sub==='declarar'?vDeclarar():sub==='facturas'?vFacturas():vSatResumen();
@@ -772,6 +789,7 @@ $('#view').addEventListener('click',e=>{
     g.ahorrado+=v;S.money.movs.push({id:uid(),tipo:'gasto',monto:v,cat:'ahorro',desc:'Ahorro: '+g.nombre,fecha:todayStr(),factura:false});save();render();toast(g.ahorrado>=g.meta?'¡Meta cumplida! Eres lo máximo':'¡Bien! Un pasito más');return}
   const pg=e.target.closest('[data-pagar]');if(pg){const d=S.money.debts.find(x=>x.id===pg.dataset.pagar);const v=+($('#pg-'+d.id)?.value||0);if(!(v>0)){toast('Escribe cuánto pagaste');return}
     d.saldo=Math.max(0,d.saldo-v);S.money.movs.push({id:uid(),tipo:'gasto',monto:v,cat:'deuda',desc:'Pago: '+d.nombre,fecha:todayStr(),factura:false,debtId:d.id});save();render();toast(d.saldo<=0?'¡Deuda pagada por completo!':'Pago registrado');return}
+  const pd=e.target.closest('[data-pagado]');if(pd){const x=S.satPagos.find(z=>z.id===pd.dataset.pagado);if(x){x.pagado=true;x.fechaPago=todayStr();S.money.movs.push({id:uid(),tipo:'gasto',monto:x.monto,cat:'impuestos',desc:'Pago SAT: '+x.concepto,fecha:todayStr(),factura:false});save();render();toast('¡Pagado! Una menos')}return}
   if(e.target.closest('[data-backup]')){backup();return}
   if(e.target.closest('[data-restore]')){$('#restoreFile')?.click();return}
   const cp=e.target.closest('[data-copy]');if(cp){const t=cp.dataset.copy;const done=()=>{cp.textContent='¡Copiado!';setTimeout(()=>cp.textContent='Copiar',1500)};
@@ -796,7 +814,7 @@ $('#view').addEventListener('change',e=>{
   if(e.target.id==='mv-cat'){syncCat();return}
   if(e.target.id==='f-uma'){const v=parseFloat(e.target.value);if(v>0){S.uma=v;save();render()}return}
   if(e.target.id==='restoreFile'){const fl=e.target.files[0];if(!fl)return;fl.text().then(t=>{const d=JSON.parse(t);if(d.app!=='mi-contador')throw 0;
-    S.money=d.money||S.money;S.over=d.over||{};S.filed=d.filed||{};S.uma=d.uma||S.uma;S.reg=d.reg||'auto';
+    S.money=d.money||S.money;S.over=d.over||{};S.filed=d.filed||{};S.uma=d.uma||S.uma;S.reg=d.reg||'auto';S.satPagos=d.satPagos||S.satPagos||[];if(S.sample){S.records=[];S.sample=false;S.rfc=''}if(d.rfc)S.rfc=d.rfc;
     if(d.records&&d.records.length){S.records=d.records;S.rfc=d.rfc||detectRFC();S.sample=false}pickDefaults(true);save();render();toast('Copia cargada')}).catch(()=>toast('Ese archivo no es una copia de Mi Contador'));return}
   if(e.target.id==='f-rfc'){S.rfc=e.target.value.trim().toUpperCase();save();render();return}
   if(e.target.id==='f-reg'){S.reg=e.target.value;save();render();return}
@@ -804,7 +822,7 @@ $('#view').addEventListener('change',e=>{
   const cl=e.target.closest('[data-cls]');if(cl){const u=cl.dataset.cls;S.over[u]={...(S.over[u]||{}),cls:cl.value==='auto'?undefined:cl.value};save();render()}
 });
 async function backup(){
-  const data=JSON.stringify({app:'mi-contador',v:2,rfc:S.rfc,reg:S.reg,uma:S.uma,records:S.sample?[]:S.records,over:S.over,filed:S.filed,money:S.money});
+  const data=JSON.stringify({app:'mi-contador',v:2,rfc:S.rfc,reg:S.reg,uma:S.uma,records:S.sample?[]:S.records,over:S.over,filed:S.filed,money:S.money,satPagos:S.satPagos});
   const filename=`mi-contador-copia-${todayStr()}.json`;
   if(window.claude&&window.claude.use){const dl=await window.claude.use('downloads');
     if(dl){try{await dl.save({filename,data});toast('Copia guardada')}catch(_){toast('No se guardó la copia')}return}}
@@ -819,7 +837,8 @@ function boot(){
   S.filed=S.filed||{};S.stepsDone=S.stepsDone||{};S.over=S.over||{};
   if(['declarar','facturas'].includes(S.tab)){S.sub=S.tab;S.tab='sat'}
   if(!TABS.includes(S.tab))S.tab='inicio';
-  if(!S.records||!S.records.length||(s&&s.sample)||!s)loadSample();else S.sample=false;
+  S.satPagos=Array.isArray(S.satPagos)?S.satPagos:[];
+  if(hasOwn()){S.sample=false;if(s&&s.sample)S.records=[]}else if(!S.records||!S.records.length||(s&&s.sample)||!s)loadSample();else S.sample=false;
   pickDefaults(!S.year);render();
 }
 boot();
