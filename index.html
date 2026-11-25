@@ -253,8 +253,8 @@ function tarifa(base,n){if(base<=0)return 0;let row=TARIFA[0];for(const r of TAR
 
 const KEY='micontador.v1';
 const TABS=['inicio','movs','metas','sat','ayuda'];
-let S={records:[],rfc:'',reg:'auto',year:null,month:null,tab:'inicio',sub:'resumen',movTipo:'gasto',over:{},sample:true,facView:'emitidas',facAll:false,filed:{},stepsDone:{},uma:113.14,money:{movs:[],debts:[],goals:[]},satPagos:[]};
-function hasOwn(){const m=S.money||{};return !!((m.movs&&m.movs.length)||(m.debts&&m.debts.length)||(m.goals&&m.goals.length)||Object.keys(S.filed||{}).length||(S.satPagos&&S.satPagos.length))}
+let S={records:[],rfc:'',reg:'auto',year:null,month:null,tab:'inicio',sub:'resumen',movTipo:'gasto',over:{},sample:true,facView:'emitidas',facAll:false,filed:{},stepsDone:{},uma:113.14,money:{movs:[],debts:[],goals:[]},satPagos:[],decls:{},inicio:''};
+function hasOwn(){const m=S.money||{};return !!((m.movs&&m.movs.length)||(m.debts&&m.debts.length)||(m.goals&&m.goals.length)||Object.keys(S.filed||{}).length||(S.satPagos&&S.satPagos.length)||Object.keys(S.decls||{}).length)}
 function save(){if(S.sample&&hasOwn()){S.sample=false;S.records=[];S.over={};S.rfc=S.rfc&&S.rfc!=='MOLA900215K39'?S.rfc:''}try{localStorage.setItem(KEY,JSON.stringify(S.sample?{...S,records:[],over:{},filed:{},stepsDone:{}}:S))}catch(e){}}
 
 const $=s=>document.querySelector(s);
@@ -623,6 +623,7 @@ function sumMov(L,tipo){return L.filter(x=>x.tipo===tipo&&!isTraspaso(x)).reduce
 function umaLimit(){return 3*(+S.uma||113.14)*30.4*12}
 function catHint(c){return ({trabajo:'Paga impuestos y debe llevar factura. Para el cálculo del SAT uso tus facturas.',papas:'No paga impuestos, sin importar el monto.',regalo:`Libre de impuestos hasta ${f0(umaLimit())} al año, sumando a todas las personas.`,traspaso:'No cuenta como ingreso.',traspaso_g:'No cuenta como gasto.',trabajo_g:'Pide factura: así recuperas el IVA.',salud:'Con factura a tu nombre te sirve en la declaración anual.',escuela:'Con factura a tu nombre te sirve en la declaración anual.'})[c]||''}
 function bar(p,color){return `<div class="track"><i style="width:${Math.max(0,Math.min(100,p*100))}%;background:${color||'linear-gradient(90deg,var(--pink),var(--lilac))'}"></i></div>`}
+function paidOf(d){return S.money.movs.filter(x=>x.debtId===d.id).reduce((s,x)=>s+x.monto,0)}
 function paidThisMonth(d){const n=new Date();return S.money.movs.some(x=>x.debtId===d.id&&ym(x.fecha)[0]===n.getFullYear()&&ym(x.fecha)[1]===n.getMonth()+1)}
 
 function moneyChecks(y){
@@ -658,7 +659,7 @@ function vHome(){
      </div>
      <div class="part"><div class="row"><span class="lbl">Aparta para el SAT</span><span class="pill ${st.cls}">${st.txt}</span></div>
        ${!S.records.length&&!S.sample?`<span class="small muted">Sube tus facturas del SAT (ZIP) y aquí te digo cuánto apartar de cada mes.</span>`:`<span class="v num">${f0(x.total)}</span><span class="small muted">ISR ${f0(x.isrPagar)} + IVA ${f0(x.ivaPagar)} de tu declaración de ${MESES[m].toLowerCase()}, según tus facturas. ${queda>0?`Después de apartarlo te quedan <b>${f0(queda-x.total)}</b>.`:''}</span>`}
-       <div><button data-gotab="sat">Ver mi SAT</button></div></div>
+       <div><button data-sub="decls">Ver mis declaraciones</button></div></div>
    </section>
    ${vSatPagos()}
    <section class="card"><h2>Lo que tu contador nota</h2>
@@ -667,7 +668,7 @@ function vHome(){
      <section class="card"><div class="row"><h2>Mis metas</h2><button class="soft" data-gotab="metas">Ver</button></div>
        ${goals.length?goals.slice(0,4).map(g=>`<div style="display:grid;gap:4px"><div class="row"><b>${esc(g.nombre)}</b><span class="small num">${f0(g.ahorrado)} de ${f0(g.meta)}</span></div>${bar(g.ahorrado/g.meta)}</div>`).join(''):'<div class="empty"><b>Sin metas todavía</b>Agrega algo para lo que quieras ahorrar.</div>'}</section>
      <section class="card"><div class="row"><h2>Mis deudas</h2><button class="soft" data-gotab="metas">Ver</button></div>
-       ${debts.length?`<p>Debes en total <b class="num">${f0(debe)}</b></p>`+debts.slice(0,4).map(d=>`<div class="row"><span><b>${esc(d.nombre)}</b><br><span class="small muted">${d.dia?`Pago el día ${d.dia}`:'Sin día fijo'}${d.pago?` · ${f0(d.pago)}`:''}</span></span>${paidThisMonth(d)?'<span class="pill ok">Pagada este mes</span>':d.dia&&new Date().getDate()>d.dia?'<span class="pill bad">Pendiente</span>':'<span class="pill info">Por pagar</span>'}</div>`).join(''):'<div class="empty"><b>Sin deudas registradas</b>Si debes algo (tarjeta, préstamo, a una amiga), anótalo para no olvidarlo.</div>'}</section>
+       ${debts.length?`<p>Debes en total <b class="num">${f0(debe)}</b></p>`+debts.slice(0,6).map(d=>`<div class="row"><span><b>${esc(d.nombre)}</b><br><span class="small muted">${paidOf(d)?`Has pagado ${f0(paidOf(d))}`:'Sin pagos registrados'}</span></span><span style="display:grid;justify-items:end;gap:2px"><b class="num">${f0(d.saldo)}</b><span class="pill warn">Pendiente</span></span></div>`).join(''):'<div class="empty"><b>Sin deudas registradas</b>Si debes algo (tarjeta, préstamo, a una amiga), anótalo para no olvidarlo.</div>'}</section>
    </div>
   </div>`;
 }
@@ -703,11 +704,14 @@ function vMetas(){
       ${bar(g.ahorrado/g.meta)}<div class="row small"><span class="num"><b>${f0(g.ahorrado)}</b> de ${f0(g.meta)}</span>${falta>0?`<span class="muted">Te faltan ${f0(falta)}</span>`:'<span class="pill ok">¡Lo lograste!</span>'}</div>
       ${porMes?`<span class="hint">${porMes}</span>`:''}
       ${falta>0?`<div class="fr"><input type="number" id="ab-${esc(g.id)}" min="0" step="0.01" placeholder="¿Cuánto guardaste? $" aria-label="Abono a ${esc(g.nombre)}"><button class="primary" data-abonar="${esc(g.id)}">Guardar</button></div>`:''}</div>`}).join('');
-  const debts=S.money.debts.map(d=>{const pagado=d.total-d.saldo;
+  const debts=S.money.debts.map(d=>{const pagos=S.money.movs.filter(x=>x.debtId===d.id).sort((a,b)=>b.fecha.localeCompare(a.fecha));const tp=pagos.reduce((s,x)=>s+x.monto,0);const ult=(d.hist||[]).filter(h=>h.tipo==='saldo').slice(-1)[0];
     return `<div class="goal"><div class="row"><b style="font-family:var(--f-display);font-size:1.1rem">${esc(d.nombre)}</b><button class="x" data-deldebt="${esc(d.id)}" aria-label="Borrar deuda">×</button></div>
-      ${bar(d.total?pagado/d.total:0,'var(--mint)')}<div class="row small"><span class="num">Debes <b>${f0(d.saldo)}</b> de ${f0(d.total)}</span>${d.saldo<=0?'<span class="pill ok">¡Pagada!</span>':paidThisMonth(d)?'<span class="pill ok">Pagada este mes</span>':''}</div>
-      <span class="hint">${d.pago?`Pagas ${f0(d.pago)}`:'Sin pago fijo'}${d.dia?` el día ${d.dia} de cada mes`:''}${d.pago&&d.saldo>0?` · terminas en unos ${Math.ceil(d.saldo/d.pago)} pago(s)`:''}</span>
-      ${d.saldo>0?`<div class="fr"><input type="number" id="pg-${esc(d.id)}" min="0" step="0.01" value="${d.pago||''}" placeholder="¿Cuánto pagaste? $" aria-label="Pago a ${esc(d.nombre)}"><button class="primary" data-pagar="${esc(d.id)}">Registrar pago</button></div>`:''}</div>`}).join('');
+      <div class="row"><span>Debes <b class="num" style="font-size:1.2rem">${f0(d.saldo)}</b></span>${d.saldo<=0?'<span class="pill ok">¡Pagada!</span>':'<span class="pill warn">Pendiente</span>'}</div>
+      ${d.prestado?`${bar(d.prestado?(d.prestado-d.saldo)/d.prestado:0,'var(--mint)')}<span class="hint">Te prestaron ${f0(d.prestado)}</span>`:''}
+      <span class="hint">${ult?`Actualizado el ${ult.fecha.slice(8,10)}/${ult.fecha.slice(5,7)}/${ult.fecha.slice(0,4)}`:''}${tp?` · Has pagado ${f0(tp)} en ${pagos.length} pago(s)`:''}</span>
+      ${pagos.length?`<details><summary class="small muted" style="cursor:pointer;font-weight:800">Ver mis pagos</summary><ul class="list" style="margin-top:6px">${pagos.slice(0,30).map(x=>`<li class="mv"><div class="d"><b>${x.fecha.slice(8,10)}/${x.fecha.slice(5,7)}/${x.fecha.slice(0,4)}</b><span class="small muted">${esc(x.desc||'Pago')}</span></div><span class="amt num out">${f0(x.monto)}</span><span></span></li>`).join('')}</ul></details>`:''}
+      <div class="fr"><input type="number" id="pg-${esc(d.id)}" min="0" step="0.01" placeholder="Pagué $" aria-label="Pago a ${esc(d.nombre)}"><button class="primary" data-pagar="${esc(d.id)}">Registrar pago</button></div>
+      <div class="fr"><input type="number" id="sd-${esc(d.id)}" min="0" step="0.01" placeholder="Hoy debo $" aria-label="Cuánto debes hoy a ${esc(d.nombre)}"><button class="soft" data-saldo="${esc(d.id)}">Actualizar lo que debo</button></div></div>`}).join('');
   const debe=S.money.debts.reduce((s,d)=>s+Math.max(0,d.saldo),0),mens=S.money.debts.filter(d=>d.saldo>0).reduce((s,d)=>s+(d.pago||0),0);
   return `<div class="two" style="align-items:start">
    <section class="card"><h2>Mis metas</h2>
@@ -718,12 +722,11 @@ function vMetas(){
        <span class="hint">La fecha es opcional. Si la pones, te digo cuánto ahorrar al mes.</span>
        <button class="primary" type="submit" style="justify-self:start">Agregar meta</button></form></section>
    <section class="card"><h2>Mis deudas</h2>
-     ${S.money.debts.length?`<p>Debes <b class="num">${f0(debe)}</b> en total${mens?` y pagas unos <b class="num">${f0(mens)}</b> al mes`:''}.</p>`:''}
+     ${S.money.debts.length?`<p>Debes <b class="num">${f0(debe)}</b> en total. Págalas cuando tengas dinero y registra cada pago aquí; si el banco te dice otra cantidad, usa "Actualizar lo que debo".</p>`:''}
      ${debts||'<div class="empty"><b>Sin deudas</b>Si debes algo (tarjeta de crédito, préstamo, a alguien), anótalo aquí.</div>'}
      <form class="f" id="debtForm"><h3>Nueva deuda</h3>
        <input type="text" id="db-nombre" maxlength="50" placeholder="¿A quién o qué? ej. Tarjeta Nu" aria-label="Nombre de la deuda" required>
-       <div class="fr"><input type="number" id="db-total" min="1" step="0.01" placeholder="¿Cuánto debes? $" aria-label="Cuánto debes" required><input type="number" id="db-pago" min="0" step="0.01" placeholder="Pago al mes $" aria-label="Pago mensual"></div>
-       <div class="fr"><input type="number" id="db-dia" min="1" max="31" placeholder="Día de pago (1-31)" aria-label="Día de pago"></div>
+       <div class="fr"><input type="number" id="db-total" min="1" step="0.01" placeholder="¿Cuánto debes hoy? $" aria-label="Cuánto debes" required><input type="number" id="db-pago" min="0" step="0.01" placeholder="¿Cuánto te prestaron? $ (opcional)" aria-label="Cuánto te prestaron"></div>
        <button class="primary" type="submit" style="justify-self:start">Agregar deuda</button></form>
      <p class="hint">Los pagos que registres aquí también se anotan como gasto en Mi dinero.</p></section>
   </div>`;
@@ -755,10 +758,33 @@ function vSatPagos(always){
    ${pag.length?`<details><summary class="small muted" style="cursor:pointer;font-weight:800">Pagados (${pag.length}) · ${f0(pag.reduce((s,x)=>s+x.monto,0))}</summary><ul class="list" style="margin-top:8px">${pag.map(x=>`<li class="mv"><div class="d"><b>Declaración de ${esc(x.concepto.toLowerCase())}</b><span class="small muted">Pagado ${x.fechaPago?fd(x.fechaPago):''}</span></div><span class="amt num out">${f0(x.monto)}</span><span class="pill ok">✓</span></li>`).join('')}</ul></details>`:''}
    <p class="hint">Paga en tu banca en línea: Pagos → Impuestos → Pago referenciado SAT, con la línea sin espacios y el monto exacto.</p></section>`;
 }
+function vDecls(){
+  const now=new Date(),cy=now.getFullYear(),cm=now.getMonth()+1;
+  const ks=Object.keys(S.decls||{}).filter(k=>/^\d{4}-\d{2}$/.test(k)).sort();
+  const ini=(S.inicio||ks[0]||`${cy}-01`).split('-').map(Number);
+  const rows=[];for(let y=ini[0];y<=cy;y++)for(let m=(y===ini[0]?ini[1]:1);m<=12;m++){if(y===cy&&m>cm)break;rows.push([y,m])}
+  const pagoDe=k=>(S.satPagos||[]).find(p=>p.periodo===k);
+  let hechas=0,total=0;const fd=d=>`${d.getDate()} ${MESES[d.getMonth()+1].slice(0,3).toLowerCase()}`;
+  const item=(k,titulo,dueDate,canCeros)=>{const d=(S.decls||{})[k];if(d||now>=new Date(dueDate.getFullYear(),dueDate.getMonth(),1))total++;let pill,det='';
+    if(d){hechas++;const p=pagoDe(k);
+      det=d.total||d.ingresos?`Ingresos ${f0(d.ingresos||0)} · ISR ${f0(d.isr||0)} · IVA ${f0(d.iva||0)}${d.nota?' · '+esc(d.nota):''}`:esc(d.nota||'Sin ingresos');
+      pill=!d.total?'<span class="pill ok">Presentada en ceros</span>':p&&!p.pagado?`<span class="pill bad">Por pagar ${f0(p.monto)}</span>`:'<span class="pill ok">Presentada y pagada</span>';}
+    else{const late=now>dueDate;det=late?'No la has presentado':`Vence el ${fd(dueDate)}`;pill=late?'<span class="pill bad">Falta presentar</span>':now<new Date(dueDate.getFullYear(),dueDate.getMonth(),1)?'<span class="pill off">En curso</span>':'<span class="pill info">Por presentar</span>'}
+    return `<li class="mv" style="grid-template-columns:1fr auto"><div class="d"><b>${titulo}</b><span class="small muted">${det}</span>${!d&&canCeros&&now>new Date(dueDate.getFullYear(),dueDate.getMonth(),1)?`<button class="soft copy" data-ceros="${k}" style="justify-self:start;margin-top:6px">Ya la presenté en ceros</button>`:''}</div><div style="display:grid;justify-items:end;gap:4px">${d&&d.total?`<b class="num">${f0(d.total)}</b>`:''}${pill}</div></li>`};
+  const byYear={};rows.forEach(([y,m])=>{(byYear[y]=byYear[y]||[]).push(item(mkey(y,m),`${MESES[m]} ${y}`,venc(y,m),true))});
+  for(let y=ini[0];y<cy;y++){(byYear[y]=byYear[y]||[]).push(item(`anual-${y}`,`<span style="color:var(--pink-deep)">Declaración anual ${y}</span>`,new Date(y+1,3,30),false))}
+  const pend=(S.satPagos||[]).filter(p=>!p.pagado).reduce((s,p)=>s+p.monto,0);
+  return `<div style="display:grid;gap:14px">
+   <section class="big"><div class="row"><span class="chip">Mis declaraciones</span>${pend?`<span class="pill bad">Debes ${f0(pend)}</span>`:'<span class="pill ok">Sin adeudos</span>'}</div>
+     <div style="display:grid;gap:6px"><span class="amt num">${hechas} de ${total}</span><span class="muted">declaraciones presentadas desde ${MESES[ini[1]].toLowerCase()} ${ini[0]}</span></div>${bar(total?hechas/total:0,'var(--mint)')}</section>
+   ${vSatPagos()}
+   ${Object.keys(byYear).sort().reverse().map(y=>`<section class="card"><h2>${y}</h2><ul class="list">${byYear[y].reverse().join('')}</ul></section>`).join('')}
+  </div>`;
+}
 function vSat(){
-  const sub=S.sub||'resumen';
-  const body=sub==='declarar'?vDeclarar():sub==='facturas'?vFacturas():vSatResumen();
-  return `<div style="display:grid;gap:14px"><div class="seg" style="justify-self:start"><button data-sub="resumen" aria-pressed="${sub==='resumen'}">Resumen</button><button data-sub="declarar" aria-pressed="${sub==='declarar'}">Declarar paso a paso</button><button data-sub="facturas" aria-pressed="${sub==='facturas'}">Facturas</button></div>${body}</div>`;
+  const sub=S.sub||'decls';
+  const body=sub==='declarar'?vDeclarar():sub==='facturas'?vFacturas():sub==='resumen'?vSatResumen():vDecls();
+  return `<div style="display:grid;gap:14px"><div class="seg" style="justify-self:start"><button data-sub="decls" aria-pressed="${sub==='decls'}">Mis declaraciones</button><button data-sub="facturas" aria-pressed="${sub==='facturas'}">Facturas</button><button data-sub="resumen" aria-pressed="${sub==='resumen'}">Cálculo del mes</button><button data-sub="declarar" aria-pressed="${sub==='declarar'}">Paso a paso</button></div>${body}</div>`;
 }
 
 $('#pick').onclick=()=>$('#file').click();
@@ -786,6 +812,9 @@ $('#view').addEventListener('click',e=>{
     g.ahorrado+=v;S.money.movs.push({id:uid(),tipo:'gasto',monto:v,cat:'ahorro',desc:'Ahorro: '+g.nombre,fecha:todayStr(),factura:false});save();render();toast(g.ahorrado>=g.meta?'¡Meta cumplida! Eres lo máximo':'¡Bien! Un pasito más');return}
   const pg=e.target.closest('[data-pagar]');if(pg){const d=S.money.debts.find(x=>x.id===pg.dataset.pagar);const v=+($('#pg-'+d.id)?.value||0);if(!(v>0)){toast('Escribe cuánto pagaste');return}
     d.saldo=Math.max(0,d.saldo-v);S.money.movs.push({id:uid(),tipo:'gasto',monto:v,cat:'deuda',desc:'Pago: '+d.nombre,fecha:todayStr(),factura:false,debtId:d.id});save();render();toast(d.saldo<=0?'¡Deuda pagada por completo!':'Pago registrado');return}
+  const sdb=e.target.closest('[data-saldo]');if(sdb){const d=S.money.debts.find(x=>x.id===sdb.dataset.saldo);const raw=$('#sd-'+d.id)?.value;if(raw===''||raw==null||!(+raw>=0)){toast('Escribe cuánto debes hoy');return}
+    d.saldo=+raw;if(d.saldo>d.total)d.total=d.saldo;d.hist=[...(d.hist||[]),{fecha:todayStr(),tipo:'saldo',monto:d.saldo}];save();render();toast(d.saldo<=0?'¡Ya no debes nada ahí!':'Listo, actualicé lo que debes');return}
+  const dcz=e.target.closest('[data-ceros]');if(dcz){const k=dcz.dataset.ceros;S.decls={...S.decls,[k]:{ingresos:0,isr:0,iva:0,total:0,nota:'En ceros'}};S.filed={...S.filed,[k]:true};save();render();toast('¡Una menos!');return}
   const pd=e.target.closest('[data-pagado]');if(pd){const x=S.satPagos.find(z=>z.id===pd.dataset.pagado);if(x){x.pagado=true;x.fechaPago=todayStr();S.money.movs.push({id:uid(),tipo:'gasto',monto:x.monto,cat:'impuestos',desc:'Pago SAT: '+x.concepto,fecha:todayStr(),factura:false});save();render();toast('¡Pagado! Una menos')}return}
   if(e.target.closest('[data-backup]')){backup();return}
   if(e.target.closest('[data-restore]')){$('#restoreFile')?.click();return}
@@ -804,14 +833,13 @@ $('#view').addEventListener('submit',e=>{e.preventDefault();const id=e.target.id
   if(id==='goalForm'){const nombre=$('#gl-nombre').value.trim(),meta=+$('#gl-meta').value;if(!nombre||!(meta>0))return;
     S.money.goals.push({id:uid(),nombre,meta,ahorrado:0,fecha:$('#gl-fecha').value||''});save();render();toast('Meta agregada');return}
   if(id==='debtForm'){const nombre=$('#db-nombre').value.trim(),total=+$('#db-total').value;if(!nombre||!(total>0))return;
-    const dia=Math.min(31,Math.max(0,parseInt($('#db-dia').value)||0));
-    S.money.debts.push({id:uid(),nombre,total,saldo:total,pago:+$('#db-pago').value||0,dia});save();render();toast('Deuda agregada');return}
+    S.money.debts.push({id:uid(),nombre,total,saldo:total,prestado:+$('#db-pago').value||0,pago:0,dia:0,hist:[{fecha:todayStr(),tipo:'saldo',monto:total}]});save();render();toast('Deuda agregada');return}
 });
 $('#view').addEventListener('change',e=>{
   if(e.target.id==='mv-cat'){syncCat();return}
   if(e.target.id==='f-uma'){const v=parseFloat(e.target.value);if(v>0){S.uma=v;save();render()}return}
   if(e.target.id==='restoreFile'){const fl=e.target.files[0];if(!fl)return;fl.text().then(t=>{const d=JSON.parse(t);if(d.app!=='mi-contador')throw 0;
-    S.money=d.money||S.money;S.over=d.over||{};S.filed=d.filed||{};S.uma=d.uma||S.uma;S.reg=d.reg||'auto';S.satPagos=d.satPagos||S.satPagos||[];if(S.sample){S.records=[];S.sample=false;S.rfc=''}if(d.rfc)S.rfc=d.rfc;
+    S.money=d.money||S.money;S.over=d.over||{};S.filed=d.filed||{};S.uma=d.uma||S.uma;S.reg=d.reg||'auto';S.satPagos=d.satPagos||S.satPagos||[];S.decls=d.decls||S.decls||{};S.inicio=d.inicio||S.inicio||'';if(S.sample){S.records=[];S.sample=false;S.rfc=''}if(d.rfc)S.rfc=d.rfc;
     if(d.records&&d.records.length){S.records=d.records;S.rfc=d.rfc||detectRFC();S.sample=false}pickDefaults(true);save();render();toast('Copia cargada')}).catch(()=>toast('Ese archivo no es una copia de Mi Contador'));return}
   if(e.target.id==='f-rfc'){S.rfc=e.target.value.trim().toUpperCase();save();render();return}
   if(e.target.id==='f-reg'){S.reg=e.target.value;save();render();return}
@@ -819,7 +847,7 @@ $('#view').addEventListener('change',e=>{
   const cl=e.target.closest('[data-cls]');if(cl){const u=cl.dataset.cls;S.over[u]={...(S.over[u]||{}),cls:cl.value==='auto'?undefined:cl.value};save();render()}
 });
 async function backup(){
-  const data=JSON.stringify({app:'mi-contador',v:2,rfc:S.rfc,reg:S.reg,uma:S.uma,records:S.sample?[]:S.records,over:S.over,filed:S.filed,money:S.money,satPagos:S.satPagos});
+  const data=JSON.stringify({app:'mi-contador',v:2,rfc:S.rfc,reg:S.reg,uma:S.uma,records:S.sample?[]:S.records,over:S.over,filed:S.filed,money:S.money,satPagos:S.satPagos,decls:S.decls,inicio:S.inicio});
   const filename=`mi-contador-copia-${todayStr()}.json`;
   if(window.claude&&window.claude.use){const dl=await window.claude.use('downloads');
     if(dl){try{await dl.save({filename,data});toast('Copia guardada')}catch(_){toast('No se guardó la copia')}return}}
@@ -834,7 +862,7 @@ function boot(){
   S.filed=S.filed||{};S.stepsDone=S.stepsDone||{};S.over=S.over||{};
   if(['declarar','facturas'].includes(S.tab)){S.sub=S.tab;S.tab='sat'}
   if(!TABS.includes(S.tab))S.tab='inicio';
-  S.satPagos=Array.isArray(S.satPagos)?S.satPagos:[];
+  S.satPagos=Array.isArray(S.satPagos)?S.satPagos:[];S.decls=S.decls&&typeof S.decls==='object'?S.decls:{};if(S.sub==='resumen'||!S.sub)S.sub='decls';
   if(hasOwn()){S.sample=false;if(s&&s.sample)S.records=[]}else if(!S.records||!S.records.length||(s&&s.sample)||!s)loadSample();else S.sample=false;
   pickDefaults(true);render();
 }
