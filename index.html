@@ -253,8 +253,8 @@ function tarifa(base,n){if(base<=0)return 0;let row=TARIFA[0];for(const r of TAR
 
 const KEY='micontador.v1';
 const TABS=['inicio','movs','metas','sat','ayuda'];
-let S={records:[],rfc:'',reg:'auto',year:null,month:null,tab:'inicio',sub:'resumen',movTipo:'gasto',over:{},sample:true,facView:'emitidas',facAll:false,filed:{},stepsDone:{},uma:113.14,money:{movs:[],debts:[],goals:[]},satPagos:[],decls:{},inicio:''};
-function hasOwn(){const m=S.money||{};return !!((m.movs&&m.movs.length)||(m.debts&&m.debts.length)||(m.goals&&m.goals.length)||Object.keys(S.filed||{}).length||(S.satPagos&&S.satPagos.length)||Object.keys(S.decls||{}).length)}
+let S={records:[],rfc:'',reg:'auto',year:null,month:null,tab:'inicio',sub:'resumen',movTipo:'gasto',over:{},sample:true,facView:'emitidas',facAll:false,filed:{},stepsDone:{},uma:113.14,money:{movs:[],debts:[],goals:[]},satPagos:[],decls:{},inicio:'',subs:[]};
+function hasOwn(){const m=S.money||{};return !!((m.movs&&m.movs.length)||(m.debts&&m.debts.length)||(m.goals&&m.goals.length)||Object.keys(S.filed||{}).length||(S.satPagos&&S.satPagos.length)||Object.keys(S.decls||{}).length||(S.subs&&S.subs.length))}
 function save(){if(S.sample&&hasOwn()){S.sample=false;S.records=[];S.over={};S.rfc=S.rfc&&S.rfc!=='MOLA900215K39'?S.rfc:''}try{localStorage.setItem(KEY,JSON.stringify(S.sample?{...S,records:[],over:{},filed:{},stepsDone:{}}:S))}catch(e){}}
 
 const $=s=>document.querySelector(s);
@@ -673,6 +673,21 @@ function vHome(){
   </div>`;
 }
 
+function vSubs(){
+  const L=S.subs||[];const act=L.filter(x=>x.estado!=='cancelada'&&x.estado!=='inactiva');
+  const tot=act.reduce((s,x)=>s+(+x.monto||0),0),ahorro=act.filter(x=>x.rec==='cancelar').reduce((s,x)=>s+(+x.monto||0),0);
+  const canc=L.filter(x=>x.estado==='cancelada').reduce((s,x)=>s+(+x.monto||0),0);
+  const recPill={cancelar:'<span class="pill bad">Te conviene cancelar</span>',decide:'<span class="pill warn">Decide tú</span>',mantener:'<span class="pill ok">Mantener (trabajo)</span>'};
+  const row=x=>`<li class="goal"><div class="row"><b style="font-family:var(--f-display);font-size:1.05rem">${esc(x.nombre)}</b><span class="num" style="font-weight:800">${f0(x.monto)}<span class="small muted">/mes</span></span></div>
+    <div class="row small"><span class="muted">${esc(x.uso==='trabajo'?'Para tu trabajo':'Personal')}${x.ultimo?` · último cobro ${esc(x.ultimo)}`:''}</span>${x.estado==='cancelada'?'<span class="pill ok">Cancelada ✓</span>':x.estado==='inactiva'?'<span class="pill off">Ya no se cobra</span>':recPill[x.rec]||''}</div>
+    ${x.nota?`<span class="hint">${esc(x.nota)}</span>`:''}
+    ${x.como&&x.estado!=='cancelada'?`<details><summary class="small muted" style="cursor:pointer;font-weight:800">Cómo cancelarla</summary><p class="small" style="margin-top:6px">${esc(x.como)}</p></details>`:''}
+    <div class="fr">${x.estado==='cancelada'?`<button class="soft copy" data-subest="${esc(x.id)}" data-v="activa" style="flex:0 0 auto">La volví a activar</button>`:`<button class="primary copy" data-subest="${esc(x.id)}" data-v="cancelada" style="flex:0 0 auto">Ya la cancelé</button>`}<button class="x" data-delsub="${esc(x.id)}" aria-label="Quitar ${esc(x.nombre)}" style="flex:0 0 auto">×</button></div></li>`;
+  return `<section class="card"><div class="row"><h2>Mis suscripciones</h2><span class="pill info">${f0(tot)} al mes</span></div>
+   ${L.length?`<p class="small">${ahorro?`Si cancelas las marcadas en rojo te ahorras <b>${f0(ahorro)} al mes</b> (${f0(ahorro*12)} al año).`:''}${canc?` Ya cancelaste <b>${f0(canc)} al mes</b>. 💪`:''}</p><ul class="list">${L.slice().sort((a,b)=>({cancelar:0,decide:1,mantener:2}[a.rec]??3)-({cancelar:0,decide:1,mantener:2}[b.rec]??3)).map(row).join('')}</ul>`:'<div class="empty"><b>Sin suscripciones registradas</b>Agrega abajo lo que pagas cada mes (Spotify, Netflix, iCloud…).</div>'}
+   <form class="f" id="subForm"><div class="fr"><input type="text" id="sb-nombre" maxlength="40" placeholder="Nueva suscripción, ej. Netflix" aria-label="Nombre de la suscripción" required><input type="number" id="sb-monto" min="0" step="0.01" placeholder="$ al mes" aria-label="Costo al mes" required><button class="soft" type="submit" style="flex:0 0 auto">Agregar</button></div></form>
+   <p class="hint">Muchas se cobran por PayPal: revisa también PayPal → Configuración → Pagos → Pagos automáticos y cancélalas ahí.</p></section>`;
+}
 function vMovs(){
   const y=S.year,m=S.month;const L=movsOf(y,m).sort((a,b)=>b.fecha.localeCompare(a.fecha)||0);
   const cats=S.movTipo==='entrada'?CAT_IN:CAT_OUT;
@@ -689,6 +704,7 @@ function vMovs(){
       <div class="fr"><input type="text" id="mv-desc" maxlength="80" placeholder="Descripción (opcional)" aria-label="Descripción"><input type="date" id="mv-fecha" value="${def}" aria-label="Fecha"></div>
       <div class="fr" style="justify-content:space-between"><label class="check" id="mv-factwrap"><input type="checkbox" id="mv-fact"> Tiene factura</label><button class="primary" type="submit" style="flex:0 0 auto">Guardar</button></div>
     </form></section>
+   ${vSubs()}
    ${cs.length?`<section class="card"><h2>En qué se fue tu dinero</h2><div class="bars">${cs.map(([c,v],i)=>`<div class="barrow"><span>${esc(CATS[c]||c)}</span>${bar(v/max,BARC[i%BARC.length])}<span class="num">${f0(v)}</span></div>`).join('')}</div></section>`:''}
    <section class="card"><div class="row"><h2>Movimientos de ${MESES[m]}</h2><span class="small muted">Entró <b class="in">${f0(sumMov(L,'entrada'))}</b> · Salió <b class="out">${f0(sumMov(L,'gasto'))}</b></span></div>
     ${L.length?`<ul class="list">${L.map(x=>`<li class="mv"><div class="d"><b>${esc(x.desc||CATS[x.cat]||'Movimiento')}</b><span class="small muted">${x.fecha.slice(8,10)}/${x.fecha.slice(5,7)} · ${esc(CATS[x.cat]||x.cat)}${FACT_CATS.has(x.cat)?(x.factura?' · con factura':x.declarado?' · ya declarado':' · sin factura'):''}</span></div><span class="amt num ${x.tipo==='entrada'?'in':'out'}">${x.tipo==='entrada'?'+':'−'}${f0(x.monto)}</span><button class="x" data-delmov="${esc(x.id)}" aria-label="Borrar movimiento">×</button></li>`).join('')}</ul>`:'<div class="empty"><b>Nada anotado este mes</b>Anota arriba lo que te entra y lo que gastas. Así tu contador sabe cómo vas.</div>'}
@@ -814,6 +830,8 @@ $('#view').addEventListener('click',e=>{
     d.saldo=Math.max(0,d.saldo-v);S.money.movs.push({id:uid(),tipo:'gasto',monto:v,cat:'deuda',desc:'Pago: '+d.nombre,fecha:todayStr(),factura:false,debtId:d.id});save();render();toast(d.saldo<=0?'¡Deuda pagada por completo!':'Pago registrado');return}
   const sdb=e.target.closest('[data-saldo]');if(sdb){const d=S.money.debts.find(x=>x.id===sdb.dataset.saldo);const raw=$('#sd-'+d.id)?.value;if(raw===''||raw==null||!(+raw>=0)){toast('Escribe cuánto debes hoy');return}
     d.saldo=+raw;if(d.saldo>d.total)d.total=d.saldo;d.hist=[...(d.hist||[]),{fecha:todayStr(),tipo:'saldo',monto:d.saldo}];save();render();toast(d.saldo<=0?'¡Ya no debes nada ahí!':'Listo, actualicé lo que debes');return}
+  const se=e.target.closest('[data-subest]');if(se){const x=S.subs.find(z=>z.id===se.dataset.subest);if(x){x.estado=se.dataset.v;save();render();toast(x.estado==='cancelada'?`¡Bien! Te ahorras ${f0(x.monto)} al mes`:'Marcada como activa')}return}
+  const ds=e.target.closest('[data-delsub]');if(ds){S.subs=S.subs.filter(z=>z.id!==ds.dataset.delsub);save();render();return}
   const dcz=e.target.closest('[data-ceros]');if(dcz){const k=dcz.dataset.ceros;S.decls={...S.decls,[k]:{ingresos:0,isr:0,iva:0,total:0,nota:'En ceros'}};S.filed={...S.filed,[k]:true};save();render();toast('¡Una menos!');return}
   const pd=e.target.closest('[data-pagado]');if(pd){const x=S.satPagos.find(z=>z.id===pd.dataset.pagado);if(x){x.pagado=true;x.fechaPago=todayStr();S.money.movs.push({id:uid(),tipo:'gasto',monto:x.monto,cat:'impuestos',desc:'Pago SAT: '+x.concepto,fecha:todayStr(),factura:false});save();render();toast('¡Pagado! Una menos')}return}
   if(e.target.closest('[data-backup]')){backup();return}
@@ -830,6 +848,7 @@ $('#view').addEventListener('submit',e=>{e.preventDefault();const id=e.target.id
     const cat=$('#mv-cat').value,fecha=$('#mv-fecha').value||todayStr();
     S.money.movs.push({id:uid(),tipo:S.movTipo,monto,cat,desc:$('#mv-desc').value.trim(),fecha,factura:FACT_CATS.has(cat)&&$('#mv-fact').checked});
     const [yy,mm]=ym(fecha);if(yy){S.year=yy;S.month=mm}save();render();toast(S.movTipo==='entrada'?'Entrada guardada':'Gasto guardado');return}
+  if(id==='subForm'){const nombre=$('#sb-nombre').value.trim(),monto=+$('#sb-monto').value;if(!nombre||!(monto>=0))return;S.subs=[...(S.subs||[]),{id:uid(),nombre,monto,uso:'personal',rec:'decide',estado:'activa'}];save();render();toast('Suscripción agregada');return}
   if(id==='goalForm'){const nombre=$('#gl-nombre').value.trim(),meta=+$('#gl-meta').value;if(!nombre||!(meta>0))return;
     S.money.goals.push({id:uid(),nombre,meta,ahorrado:0,fecha:$('#gl-fecha').value||''});save();render();toast('Meta agregada');return}
   if(id==='debtForm'){const nombre=$('#db-nombre').value.trim(),total=+$('#db-total').value;if(!nombre||!(total>0))return;
@@ -839,7 +858,7 @@ $('#view').addEventListener('change',e=>{
   if(e.target.id==='mv-cat'){syncCat();return}
   if(e.target.id==='f-uma'){const v=parseFloat(e.target.value);if(v>0){S.uma=v;save();render()}return}
   if(e.target.id==='restoreFile'){const fl=e.target.files[0];if(!fl)return;fl.text().then(t=>{const d=JSON.parse(t);if(d.app!=='mi-contador')throw 0;
-    S.money=d.money||S.money;S.over=d.over||{};S.filed=d.filed||{};S.uma=d.uma||S.uma;S.reg=d.reg||'auto';S.satPagos=d.satPagos||S.satPagos||[];S.decls=d.decls||S.decls||{};S.inicio=d.inicio||S.inicio||'';if(S.sample){S.records=[];S.sample=false;S.rfc=''}if(d.rfc)S.rfc=d.rfc;
+    S.money=d.money||S.money;S.over=d.over||{};S.filed=d.filed||{};S.uma=d.uma||S.uma;S.reg=d.reg||'auto';S.satPagos=d.satPagos||S.satPagos||[];S.decls=d.decls||S.decls||{};S.subs=d.subs||S.subs||[];S.inicio=d.inicio||S.inicio||'';if(S.sample){S.records=[];S.sample=false;S.rfc=''}if(d.rfc)S.rfc=d.rfc;
     if(d.records&&d.records.length){S.records=d.records;S.rfc=d.rfc||detectRFC();S.sample=false}pickDefaults(true);save();render();toast('Copia cargada')}).catch(()=>toast('Ese archivo no es una copia de Mi Contador'));return}
   if(e.target.id==='f-rfc'){S.rfc=e.target.value.trim().toUpperCase();save();render();return}
   if(e.target.id==='f-reg'){S.reg=e.target.value;save();render();return}
@@ -847,7 +866,7 @@ $('#view').addEventListener('change',e=>{
   const cl=e.target.closest('[data-cls]');if(cl){const u=cl.dataset.cls;S.over[u]={...(S.over[u]||{}),cls:cl.value==='auto'?undefined:cl.value};save();render()}
 });
 async function backup(){
-  const data=JSON.stringify({app:'mi-contador',v:2,rfc:S.rfc,reg:S.reg,uma:S.uma,records:S.sample?[]:S.records,over:S.over,filed:S.filed,money:S.money,satPagos:S.satPagos,decls:S.decls,inicio:S.inicio});
+  const data=JSON.stringify({app:'mi-contador',v:2,rfc:S.rfc,reg:S.reg,uma:S.uma,records:S.sample?[]:S.records,over:S.over,filed:S.filed,money:S.money,satPagos:S.satPagos,decls:S.decls,subs:S.subs,inicio:S.inicio});
   const filename=`mi-contador-copia-${todayStr()}.json`;
   if(window.claude&&window.claude.use){const dl=await window.claude.use('downloads');
     if(dl){try{await dl.save({filename,data});toast('Copia guardada')}catch(_){toast('No se guardó la copia')}return}}
@@ -862,7 +881,7 @@ function boot(){
   S.filed=S.filed||{};S.stepsDone=S.stepsDone||{};S.over=S.over||{};
   if(['declarar','facturas'].includes(S.tab)){S.sub=S.tab;S.tab='sat'}
   if(!TABS.includes(S.tab))S.tab='inicio';
-  S.satPagos=Array.isArray(S.satPagos)?S.satPagos:[];S.decls=S.decls&&typeof S.decls==='object'?S.decls:{};if(S.sub==='resumen'||!S.sub)S.sub='decls';
+  S.satPagos=Array.isArray(S.satPagos)?S.satPagos:[];S.decls=S.decls&&typeof S.decls==='object'?S.decls:{};S.subs=Array.isArray(S.subs)?S.subs:[];if(S.sub==='resumen'||!S.sub)S.sub='decls';
   if(hasOwn()){S.sample=false;if(s&&s.sample)S.records=[]}else if(!S.records||!S.records.length||(s&&s.sample)||!s)loadSample();else S.sample=false;
   pickDefaults(true);render();
 }
